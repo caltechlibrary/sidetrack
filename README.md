@@ -108,9 +108,9 @@ def log(s, *other_args):
 ```
 
 
-In the age of Python f-strings, the above may seem redundant and unnecessary: why not simply call `log` with an f-string?  In fact, in almost all cases, you can; however, there are also situations where f-strings cannot be used due to how they are evaluated at runtime or due to [certain inherent limitations](https://www.python.org/dev/peps/pep-0498/#differences-between-f-string-and-str-format-expressions).  Having `log` operate like a call to `format` gives you the flexibility of using either style without having to remember a different API: you can use `log(f'some {value}')` if you wish, or `log('some {}', value)` if you prefer.
+In the age of Python f-strings, the above may seem redundant and unnecessary: why not simply call `log` with an f-string?  In fact, in almost all cases, you can; however, there are also situations where f-strings cannot be used due to how they are evaluated at run time or due to [certain inherent limitations](https://www.python.org/dev/peps/pep-0498/#differences-between-f-string-and-str-format-expressions).  Having `log` operate like a call to `format` gives you the flexibility of using either style without having to remember a different API: you can use `log(f'some {value}')` if you wish, or `log('some {}', value)` if you prefer.
 
-The alternative function `logr` is available for use in situations where the string argument must _not_ be passed to `format`.  This is handy when the output string contains characters such as `{` which would be misinterpreted by `format`.
+The alternative function `logr` is available for use in situations where the string argument must _not_ be passed to `format`.  This is handy when the string contains character sequences that have special meaning to `format`, particularly in situations where the string contains references to variables that _might_ expand at run time to contain those characters &ndash; in other words, something that would be misinterpreted by `format` but is difficult to escape.
 
 
 ### _Tips for using Sidetrack_
