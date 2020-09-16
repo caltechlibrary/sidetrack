@@ -1,7 +1,7 @@
 Sidetrack<img width="11%" align="right" src="https://github.com/caltechlibrary/sidetrack/raw/main/.graphics/sidetrack-logo.png">
 ===========================================================================
 
-_Sidetrack_ provides a simple interface to write log messages.  Calls to the log functions can be left in your code to provide a way for users to produce debug logs in the field; if performance matters, using a certain coding idiom and running Python with optimization turned on will cause log statements to be compiled out.
+_Sidetrack_ provides a simple interface to write log messages.  Calls to the log functions can be left in your code to provide a way for users to produce debug logs in the field; if performance matters, using a certain coding idiom and running Python with optimization enabled will cause log statements to be compiled out.
 
 [![License](https://img.shields.io/badge/License-BSD%203--Clause-blue.svg?style=flat-square)](https://choosealicense.com/licenses/bsd-3-clause)
 [![Latest release](https://img.shields.io/github/v/release/caltechlibrary/sidetrack.svg?style=flat-square&color=b44e88)](https://github.com/caltechlibrary/sidetrack/releases)
@@ -162,6 +162,27 @@ demo_debug.py:40 main() -- === demo program stopping ===
 Being able to send the debug output to a file becomes useful when dealing with longer and more complicated programs &ndash; it makes it possible to store a detailed trace without cluttering the output as it is in the sample above.
 
 File output can also be useful for deployed code: you can leave the debug functionality in your code and instruct your users to turn on debugging with output directed to a file, then send you the file so you can debug problems more easily.
+
+
+### _How to run the demo program_
+
+In the [`tests`](tests) subdirectory, there is a simple demonstration program illustrating the use of Sidetrack.  To run it, on Linux and macOS systems, you can start a terminal shell and run the following commands:
+
+``` shell
+python3 tests/demo_debug.py -h
+```
+
+To run it with debug logging enabled, use the `-d` command-line option (where the output in this example is given as `-`, which means to send the output to the terminal):
+
+``` shell
+python3 tests/demo_debug.py -d -
+```
+
+To see the difference when Python optimization is active, add the `-O` option to the Python interpreter:
+
+``` shell
+python3 -O tests/demo_debug.py -d -
+```
 
 
 Getting help
