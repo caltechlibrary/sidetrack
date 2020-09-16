@@ -1,4 +1,4 @@
-Sidetrack<img width="12%" align="right" src=".graphics/sidetrack-icon.png">
+Sidetrack<img width="12%" align="right" src=".graphics/sidetrack-logo.png">
 ===========================================================================
 
 _Sidetrack_ provides a simple interface to writing log messages for tracing and debugging your Python programs.  They can be left in your code to provide a way for users to debug code in the field, or elided completely by running Python with the optimization (`-O`) flag.
