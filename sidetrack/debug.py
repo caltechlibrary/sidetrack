@@ -119,4 +119,4 @@ def __write_log(s, frame):
     lineno = frame.f_lineno
     file   = path.basename(frame.f_code.co_filename)
     logger = logging.getLogger(__package__)
-    logger.debug(f'{file}:{lineno} {func}() -- ' + )
+    logger.debug(f'{file}:{lineno} {func}() -- ' + s)
