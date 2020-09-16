@@ -1,7 +1,7 @@
-Template for software repositories by the Caltech Library
-=====================================================
+Sidetrack<img width="12%" align="right" src=".graphics/sidetrack-icon.png">
+===========================================================================
 
-This is a template README file for software repositories.  This first paragraph of the README should summarize your software in a concise fashion, preferably using no more than one or two sentences.
+_Sidetrack_ provides a simple interface to writing log messages for tracing and debugging your Python programs.  They can be left in your code to provide a way for users to debug code in the field, or elided completely by running Python with the optimization (`-O`) flag.
 
 [![License](https://img.shields.io/badge/License-BSD%203--Clause-blue.svg?style=flat-square)](https://choosealicense.com/licenses/bsd-3-clause)
 [![Latest release](https://img.shields.io/github/v/release/caltechlibrary/template.svg?style=flat-square&color=b44e88)](https://github.com/caltechlibrary/template/releases)
