@@ -88,7 +88,33 @@ if debugging:
 
 The above will turn on debug logging and send it to the destination `debug_output`, which can be either a file name or the dash symbol (`-`); the latter indicates the destination should be standard output.  If your program uses threads, you can take advantage of the additional keyword argument `show_thread` accepted by `set_debug(...)` to control whether each line of output is prefixed with the thread name.  (It's `False` by default.)
 
-Throughout the rest of your code, in places where it's useful, add calls to `log(...)`.  Here's a simple contrived example:
+
+### _How to call `log` and `logr`_
+
+The `log` function accepts one argument, a string, and any number of optional arguments.  Here's an example from an actual program that uses Sidetrack:
+
+``` python
+if __debug__: log('exception (failure #{}): {}', failures, str(ex))
+```
+
+
+  Internally, `log` applies `format` to the string and passes any remaining arguments as the arguments to `format`.  In other words, it is essentially the following pseudocode:
+
+``` python
+def log(s, *other_args):
+    final_text = s.format(*other_args)
+    write_log(final_text)
+```
+
+
+In the age of Python f-strings, the above may seem redundant and unnecessary: why not simply call `log` with an f-string?  In fact, in almost all cases, you can; however, there are also situations where f-strings cannot be used due to how they are evaluated at runtime or due to [certain inherent limitations](https://www.python.org/dev/peps/pep-0498/#differences-between-f-string-and-str-format-expressions).  Having `log` operate like a call to `format` gives you the flexibility of using either style without having to remember a different API: you can use `log(f'some {value}')` if you wish, or `log('some {}', value)` if you prefer.
+
+The alternative function `logr` is available for use in situations where the string argument must _not_ be passed to `format`.  This is handy when the output string contains characters such as `{` which would be misinterpreted by `format`.
+
+
+### _Tips for using Sidetrack_
+
+Throughout the rest of your code, in places where it's useful, add calls to `log(...)` and/or `logr(...)`.  Here's a simple contrived example:
 
 ``` python
     if __debug__: log('=== demo program starting ===')
@@ -136,27 +162,6 @@ demo_debug.py:40 main() -- === demo program stopping ===
 Being able to send the debug output to a file becomes useful when dealing with longer and more complicated programs &ndash; it makes it possible to store a detailed trace without cluttering the output as it is in the sample above.
 
 File output can also be useful for deployed code: you can leave the debug functionality in your code and instruct your users to turn on debugging with output directed to a file, then send you the file so you can debug problems more easily.
-
-
-### _How to use `log` and `logr`_
-
-The `log` function accepts one argument, a string, and any number of optional arguments.  Internally, `log` applies `format` to the string and passes any remaining arguments as the arguments to `format`.  In other words, it is essentially the following pseudocode:
-
-``` python
-def log(s, *other_args):
-    final_text = s.format(*other_args)
-    write_log(final_text)
-```
-
-Here's an example from an actual program that uses Sidetrack:
-
-``` python
-if __debug__: log('exception (failure #{}): {}', failures, str(ex))
-```
-
-In the age of Python f-strings, the above may seem redundant and unnecessary: why not simply call `log` with an f-string?  In fact, in almost all cases, you can; however, there are also situations where f-strings cannot be used due to how they are evaluated at runtime or due to [certain inherent limitations](https://www.python.org/dev/peps/pep-0498/#differences-between-f-string-and-str-format-expressions).  Having `log` operate like a call to `format` gives you the flexibility of using either style without having to remember a different API: you can use `log(f'some {value}')` if you wish, or `log('some {}', value)` if you prefer.
-
-The alternative function `logr` is available for use in situations where the string argument must _not_ be passed to `format`.  This is handy when the output string contains characters such as `{` which would be misinterpreted by `format`.
 
 
 Getting help
