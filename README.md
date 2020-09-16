@@ -1,4 +1,4 @@
-Sidetrack<img width="14%" align="right" src=".graphics/sidetrack-logo.png">
+Sidetrack<img width="11%" align="right" src="https://github.com/caltechlibrary/sidetrack/raw/main/.graphics/sidetrack-logo.png">
 ===========================================================================
 
 _Sidetrack_ provides a simple interface to writing log messages for tracing and debugging your Python programs.  They can be left in your code to provide a way for users to produce detailed debug traces in the field; if performance matters, using a certain coding idiom and the Python optimization flag (`-O`) will cause the log statements to be skipped completely.
@@ -93,6 +93,6 @@ The [vector artwork](https://thenounproject.com/term/debug/3482208/) of a docume
 <div align="center">
   <br>
   <a href="https://www.caltech.edu">
-    <img width="100" height="100" src=".graphics/caltech-round.svg">
+    <img width="100" height="100" src="https://github.com/caltechlibrary/sidetrack/raw/main/.graphics/caltech-round.svg">
   </a>
 </div>
