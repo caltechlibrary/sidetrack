@@ -23,7 +23,7 @@ file "LICENSE" for more information.
 # .............................................................................
 
 if __debug__:
-    import inspect
+    from   inspect import currentframe
     import logging
     from   os import path
     import sys
@@ -50,7 +50,7 @@ def set_debug(enabled, dest = '-', show_thread = False):
     Optional argument 'show_thread' determines whether the name of the current
     thread prefixes every output line.  Setting the value to True is useful if
     the calling programming uses multiple threads; otherwise, it's probably
-    best to leave it False to reduce clutter in the output messages.
+    best to leave it False to reduce clutter in the output.
     '''
     if __debug__:
         from logging import DEBUG, WARNING, FileHandler, StreamHandler
@@ -96,12 +96,7 @@ def log(s, *other_args):
         # the string format from always being performed if logging is not
         # turned on and the user isn't running Python with -O.
         if getattr(sys.modules[__package__], '_debugging'):
-            frame  = inspect.currentframe().f_back
-            func   = frame.f_code.co_name
-            lineno = frame.f_lineno
-            file   = path.basename(frame.f_code.co_filename)
-            logger = logging.getLogger(__package__)
-            logger.debug(f'{file}:{lineno} {func}() -- ' + s.format(*other_args))
+            __write_log(s.format(*other_args), currentframe().f_back)
 
 
 def logr(s):
@@ -113,9 +108,15 @@ def logr(s):
         # the string format from always being performed if logging is not
         # turned on and the user isn't running Python with -O.
         if getattr(sys.modules[__package__], '_debugging'):
-            frame  = inspect.currentframe().f_back
-            func   = frame.f_code.co_name
-            lineno = frame.f_lineno
-            file   = path.basename(frame.f_code.co_filename)
-            logger = logging.getLogger(__package__)
-            logger.debug(f'{file}:{lineno} {func}() -- ' + s)
+            __write_log(s, currentframe().f_back)
+
+
+# Internal helper functions.
+# .............................................................................
+
+def __write_log(s, frame):
+    func   = frame.f_code.co_name
+    lineno = frame.f_lineno
+    file   = path.basename(frame.f_code.co_filename)
+    logger = logging.getLogger(__package__)
+    logger.debug(f'{file}:{lineno} {func}() -- ' + s)
