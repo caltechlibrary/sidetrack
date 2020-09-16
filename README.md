@@ -4,6 +4,7 @@ Sidetrack<img width="11%" align="right" src="https://github.com/caltechlibrary/s
 _Sidetrack_ provides a simple interface to write log messages.  Calls to the log functions can be left in your code to provide a way for users to produce debug logs in the field; if performance matters, using a certain coding idiom and running Python with optimization enabled will cause log statements to be compiled out.
 
 [![License](https://img.shields.io/badge/License-BSD%203--Clause-blue.svg?style=flat-square)](https://choosealicense.com/licenses/bsd-3-clause)
+[![Python](https://img.shields.io/badge/Python-3.6+-brightgreen.svg?style=flat-square)](http://shields.io)
 [![Latest release](https://img.shields.io/github/v/release/caltechlibrary/sidetrack.svg?style=flat-square&color=b44e88)](https://github.com/caltechlibrary/sidetrack/releases)
 
 
