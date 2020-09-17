@@ -1,12 +1,13 @@
 # =============================================================================
 # @file    Makefile
-# @brief   Makefile for some steps in creating Sidetrack releases
+# @brief   Makefile for some steps in creating new releases
 # @author  Michael Hucka
 # @date    2020-08-11
 # @license Please see the file named LICENSE in the project directory
 # @website https://github.com/caltechlibrary/sidetrack
 # =============================================================================
 
+package := $(shell grep 'name\s*=' setup.cfg | cut -f2 -d'=' | tr -d '[:blank:]')
 version := $(shell grep 'version\s*=' setup.cfg | cut -f2 -d'=' | tr -d '[:blank:]')
 branch  := $(shell git rev-parse --abbrev-ref HEAD)
 
@@ -44,6 +45,6 @@ print-reminder:;
 	$(info ┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛)
 
 clean:;
-	-rm -rf dist build sidetrack.egg-info
+	-rm -rf dist build $(package).egg-info
 
-.PHONY: release release-on-github print-reminder
+.PHONY: release release-on-github print-reminder clean
