@@ -1,10 +1,13 @@
 Sidetrack<img width="11%" align="right" src="https://github.com/caltechlibrary/sidetrack/raw/main/.graphics/sidetrack-logo.png">
 ===========================================================================
 
-_Sidetrack_ provides a simple interface to write log messages.  Calls to the log functions can be left in your code to provide a way for users to produce debug logs in the field; if performance matters, using a certain coding idiom and running Python with optimization turned on will cause log statements to be compiled out.
+_Sidetrack_ provides a simple interface to write log messages.  Calls to the log functions can be left in your code to provide a way for users to produce debug logs in the field; if performance matters, using a certain coding idiom and running Python with optimization enabled will cause log statements to be compiled out.
 
 [![License](https://img.shields.io/badge/License-BSD%203--Clause-blue.svg?style=flat-square)](https://choosealicense.com/licenses/bsd-3-clause)
+[![Python](https://img.shields.io/badge/Python-3.6+-brightgreen.svg?style=flat-square)](http://shields.io)
 [![Latest release](https://img.shields.io/github/v/release/caltechlibrary/sidetrack.svg?style=flat-square&color=b44e88)](https://github.com/caltechlibrary/sidetrack/releases)
+[![DOI](http://img.shields.io/badge/DOI-10.22002%20%2f%20D1.1627-blue.svg?style=flat-square)](https://data.caltech.edu/records/1627)
+[![PyPI](https://img.shields.io/pypi/v/sidetrack.svg?style=flat-square&color=red)](https://pypi.org/project/sidetrack/)
 
 
 Table of contents
@@ -107,9 +110,9 @@ def log(s, *other_args):
 ```
 
 
-In the age of Python f-strings, the above may seem redundant and unnecessary: why not simply call `log` with an f-string?  In fact, in almost all cases, you can; however, there are also situations where f-strings cannot be used due to how they are evaluated at runtime or due to [certain inherent limitations](https://www.python.org/dev/peps/pep-0498/#differences-between-f-string-and-str-format-expressions).  Having `log` operate like a call to `format` gives you the flexibility of using either style without having to remember a different API: you can use `log(f'some {value}')` if you wish, or `log('some {}', value)` if you prefer.
+In the age of Python f-strings, the above may seem redundant and unnecessary: why not simply call `log` with an f-string?  In fact, in almost all cases, you can; however, there are also situations where f-strings cannot be used due to how they are evaluated at run time or due to [certain inherent limitations](https://www.python.org/dev/peps/pep-0498/#differences-between-f-string-and-str-format-expressions).  Having `log` operate like a call to `format` gives you the flexibility of using either style without having to remember a different API: you can use `log(f'some {value}')` if you wish, or `log('some {}', value)` if you prefer.
 
-The alternative function `logr` is available for use in situations where the string argument must _not_ be passed to `format`.  This is handy when the output string contains characters such as `{` which would be misinterpreted by `format`.
+The alternative function `logr` is available for use in situations where the string argument must _not_ be passed to `format`.  This is handy when the string contains character sequences that have special meaning to `format`, particularly in situations where the string contains references to variables that _might_ expand at run time to contain those characters &ndash; in other words, something that would be misinterpreted by `format` but is difficult to escape.
 
 
 ### _Tips for using Sidetrack_
@@ -162,6 +165,27 @@ demo_debug.py:40 main() -- === demo program stopping ===
 Being able to send the debug output to a file becomes useful when dealing with longer and more complicated programs &ndash; it makes it possible to store a detailed trace without cluttering the output as it is in the sample above.
 
 File output can also be useful for deployed code: you can leave the debug functionality in your code and instruct your users to turn on debugging with output directed to a file, then send you the file so you can debug problems more easily.
+
+
+### _How to run the demo program_
+
+In the [`tests`](tests) subdirectory, there is a simple demonstration program illustrating the use of Sidetrack.  To run it, on Linux and macOS systems, you can start a terminal shell and run the following commands:
+
+``` shell
+python3 tests/demo_debug.py -h
+```
+
+To run it with debug logging enabled, use the `-d` command-line option (where the output in this example is given as `-`, which means to send the output to the terminal):
+
+``` shell
+python3 tests/demo_debug.py -d -
+```
+
+To see the difference when Python optimization is active, add the `-O` option to the Python interpreter:
+
+``` shell
+python3 -O tests/demo_debug.py -d -
+```
 
 
 Getting help
