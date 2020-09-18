@@ -1,12 +1,12 @@
 Sidetrack<img width="11%" align="right" src="https://github.com/caltechlibrary/sidetrack/raw/main/.graphics/sidetrack-logo.png">
 ===========================================================================
 
-_Sidetrack_ provides a simple interface to write log messages.  Calls to the log functions can be left in your code to provide a way for users to produce debug logs in the field; if performance matters, using a certain coding idiom and running Python with optimization enabled will cause log statements to be compiled out.
+_Sidetrack_ provides a simple interface for writing log messages in Python programs.  Calls to the log functions can be left in your code to let users produce debug logs in the field; if performance matters, using certain coding idioms and turning on Python optimization will cause log statements to be compiled out.
 
 [![License](https://img.shields.io/badge/License-BSD%203--Clause-blue.svg?style=flat-square)](https://choosealicense.com/licenses/bsd-3-clause)
 [![Python](https://img.shields.io/badge/Python-3.6+-brightgreen.svg?style=flat-square)](http://shields.io)
 [![Latest release](https://img.shields.io/github/v/release/caltechlibrary/sidetrack.svg?style=flat-square&color=b44e88)](https://github.com/caltechlibrary/sidetrack/releases)
-[![DOI](http://img.shields.io/badge/DOI-10.22002%20%2f%20D1.1627-blue.svg?style=flat-square)](https://data.caltech.edu/records/1627)
+[![DOI](http://img.shields.io/badge/DOI-10.22002/D1.1627-blue.svg?style=flat-square)](https://data.caltech.edu/records/1627)
 [![PyPI](https://img.shields.io/pypi/v/sidetrack.svg?style=flat-square&color=red)](https://pypi.org/project/sidetrack/)
 
 
@@ -43,16 +43,16 @@ When running with `-O`, the `log` statement in the loop will not simply be a no-
 Installation
 ------------
 
-The instructions below assume you have a Python interpreter installed on your computer; if that's not the case, please first install Python version 3 and familiarize yourself with running Python programs on your system.
+The instructions below assume you have a Python interpreter installed on your computer; if that's not the case, please first [install Python version 3](INSTALL-Python3.md) and familiarize yourself with running Python programs on your system.
 
 On **Linux**, **macOS**, and **Windows** operating systems, you should be able to install `sidetrack` with [`pip`](https://pip.pypa.io/en/stable/installing/).  To install `sidetrack` from the [Python package repository (PyPI)](https://pypi.org), run the following command:
 ```
-python3 -m pip install sidetrack --upgrade
+python3 -m pip install sidetrack
 ```
 
 As an alternative to getting it from [PyPI](https://pypi.org), you can use `pip` to install `sidetrack` directly from GitHub, like this:
 ```sh
-python3 -m pip install git+https://github.com/caltechlibrary/sidetrack.git --upgrade
+python3 -m pip install git+https://github.com/caltechlibrary/sidetrack.git
 ```
 
 
@@ -82,11 +82,10 @@ The fragment above illustrates another tip: to make calls to the `log` functions
 To turn on logging, call `set_debug(...)` at least once in your code.  Often, this will most convenient if combined with a command-line argument to your program, so that debug tracing can be enabled or disabled at run-time.  The following code gives the general idea.  (The [demonstration program](tests/demo_debug.py) supplied with Sidetrack provides a full running version.)
 
 ``` python
-if debugging:
-    if __debug__:
-        set_debug(True, debug_output)
-    else:
-        print('Python -O is in effect, so debug logging is not available.')
+if __debug__:
+    set_debug(True, debug_output)
+else:
+    print('Python -O is in effect, so debug logging is not available.')
 ```
 
 The above will turn on debug logging and send it to the destination `debug_output`, which can be either a file name or the dash symbol (`-`); the latter indicates the destination should be standard output.  If your program uses threads, you can take advantage of the additional keyword argument `show_thread` accepted by `set_debug(...)` to control whether each line of output is prefixed with the thread name.  (It's `False` by default.)
@@ -112,7 +111,7 @@ def log(s, *other_args):
 
 In the age of Python f-strings, the above may seem redundant and unnecessary: why not simply call `log` with an f-string?  In fact, in almost all cases, you can; however, there are also situations where f-strings cannot be used due to how they are evaluated at run time or due to [certain inherent limitations](https://www.python.org/dev/peps/pep-0498/#differences-between-f-string-and-str-format-expressions).  Having `log` operate like a call to `format` gives you the flexibility of using either style without having to remember a different API: you can use `log(f'some {value}')` if you wish, or `log('some {}', value)` if you prefer.
 
-The alternative function `logr` is available for use in situations where the string argument must _not_ be passed to `format`.  This is handy when the string contains character sequences that have special meaning to `format`, particularly in situations where the string contains references to variables that _might_ expand at run time to contain those characters &ndash; in other words, something that would be misinterpreted by `format` but is difficult to escape.
+The alternative function `logr` ('r' for 'raw') is available for use in situations where the string argument must _not_ be passed to `format`.  This is handy when the string contains character sequences that have special meaning to `format`, particularly in situations where the string contains references to variables that _might_ expand at run time to contain those characters &ndash; in other words, something that would be misinterpreted by `format` but is difficult to escape.
 
 
 ### _Tips for using Sidetrack_
