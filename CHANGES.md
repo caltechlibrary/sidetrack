@@ -1,7 +1,7 @@
 Change log for Sidetrack
 ========================
 
-Version 0.0.1
+Version 1.0.0
 -------------
 
 First fully usable version, for testing.
