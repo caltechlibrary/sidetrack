@@ -46,9 +46,9 @@ def main(debug = 'OUT', show_thread = False):
     if __debug__: log('=== demo program starting ===')
 
     print('Looping my loopy loop:')
-    for i in range(0, 5):
+    for i in range(0, 3):
         if __debug__: log(f'loop value {i}')
-        print('  Another go-around the loop')
+        print('Another go-around the loop')
     print('Done looping.')
 
     if __debug__: log('=== demo program stopping ===')
