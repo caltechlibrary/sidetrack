@@ -37,20 +37,25 @@ if __debug__:
 # Exported functions.
 # .............................................................................
 
-def set_debug(enabled, dest = '-', show_thread = False):
+def set_debug(enabled, dest = '-', extra = ''):
     '''Turns on debug logging if 'enabled' is True; turns it off otherwise.
 
     Optional argument 'dest' changes the debug output to the given destination.
     The value can be a file path, or a single dash ('-') to indicate the
-    console (standard output).  The default destination is the console.  For
-    simplicity, only one destination is allowed at given a time; calling this
-    function multiple times with different destinations simply switches the
-    destination to the latest one.
+    standard error stream (i.e., sys.stderr).  The default destination is the
+    standard error stream.  For simplicity, only one destination is allowed at
+    given a time; calling this function multiple times with different
+    destinations simply switches the destination to the latest one.
 
-    Optional argument 'show_thread' determines whether the name of the current
-    thread prefixes every output line.  Setting the value to True is useful if
-    the calling programming uses multiple threads; otherwise, it's probably
-    best to leave it False to reduce clutter in the output.
+    Optional argument 'extra' is additional text inserted before the logged
+    message.  The 'extra' text string can contain % formatting strings defined
+    by the Python logging package.  For example, the current thread name can be
+    inserted by setting extra = '%(threadName)s'.  For information about the
+    available formatting directives, please consult the Python logging docs at
+    https://docs.python.org/library/logging.html#logrecord-attributes
+
+    This uses the Python logging framework to print messages.  The messages
+    are printed with level DEBUG.
     '''
     if __debug__:
         from logging import DEBUG, WARNING, FileHandler, StreamHandler
@@ -58,17 +63,17 @@ def set_debug(enabled, dest = '-', show_thread = False):
 
         # Set the appropriate output destination if we haven't already.
         if enabled:
-            logger    = logging.getLogger(__package__)
-            if show_thread:
-                formatter = logging.Formatter('%(threadName)s %(message)s')
-            else:
-                formatter = logging.Formatter('%(message)s')
+            logger = logging.getLogger(__package__)
+            front_part = (str(extra) + ' ') if extra else ''
+            formatter = logging.Formatter(front_part + '%(message)s')
             # We only allow one active destination.
             for h in logger.handlers:
                 logger.removeHandler(h)
             # We treat empty dest values as meaning "the default output".
             if dest in ['-', '', None]:
                 handler = StreamHandler()
+            elif type(dest) == type(sys.stderr):
+                handler = StreamHandler(dest)
             else:
                 handler = FileHandler(dest)
             handler.setFormatter(formatter)
@@ -87,36 +92,40 @@ def set_debug(enabled, dest = '-', show_thread = False):
 # stacklevel as the argument. The code below instead uses the Python inspect
 # module to get the correct stack frame at run time.
 
-def log(s, *other_args):
-    '''Logs a debug message. 's' can contain format directive, and the
-    remaining arguments are the arguments to the format string.
+def log(msg, *other_args):
+    '''Logs a debug message.
+
+    The "msg" can contain string format directives.  The "other_args" are
+    arguments that are merged into "msg" using str.format.
     '''
     if __debug__:
         # This test for the level may seem redundant, but it's not: it prevents
         # the string format from always being performed if logging is not
         # turned on and the user isn't running Python with -O.
         if getattr(sys.modules[__package__], '_debugging'):
-            __write_log(s.format(*other_args), currentframe().f_back)
+            __write_log(msg.format(*other_args), currentframe().f_back)
 
 
-def logr(s):
-    '''Logs a debug message. 's' is taken as-is; unlike log(...), logr(...)
-    does not apply format to the string.
+def logr(msg):
+    '''Logs a debug message in raw form, without further interpretation.
+
+    The text string 'msg' is taken as-is; unlike the function log(...), this
+    function does not apply str.format to the string.
     '''
     if __debug__:
         # This test for the level may seem redundant, but it's not: it prevents
         # the string format from always being performed if logging is not
         # turned on and the user isn't running Python with -O.
         if getattr(sys.modules[__package__], '_debugging'):
-            __write_log(s, currentframe().f_back)
+            __write_log(msg, currentframe().f_back)
 
 
 # Internal helper functions.
 # .............................................................................
 
-def __write_log(s, frame):
+def __write_log(msg, frame):
     func   = frame.f_code.co_name
     lineno = frame.f_lineno
     file   = path.basename(frame.f_code.co_filename)
     logger = logging.getLogger(__package__)
-    logger.debug(f'{file}:{lineno} {func}() -- ' + s)
+    logger.debug(f'{file}:{lineno} {func}() -- ' + msg)

@@ -79,19 +79,33 @@ The fragment above illustrates another tip: to make calls to the `log` functions
 
 ### _How to turn on debug logging_
 
-To turn on logging, call `set_debug(...)` at least once in your code.  Often, this will most convenient if combined with a command-line argument to your program, so that debug tracing can be enabled or disabled at run-time.  The following code gives the general idea.  (The [demonstration program](tests/demo_debug.py) supplied with Sidetrack provides a full running version.)
+To turn on logging, call `set_debug(...)` at least once in your code.  Often, this will most convenient if combined with a command-line argument to your program, so that debug tracing can be enabled or disabled at run-time.  The following example shows the basic usage.
 
 ``` python
 if __debug__:
-    set_debug(True, debug_output)
+    set_debug(True)
 else:
     print('Python -O is in effect, so debug logging is not available.')
 ```
 
-The above will turn on debug logging and send it to the destination `debug_output`, which can be either a file name or the dash symbol (`-`); the latter indicates the destination should be standard output.  If your program uses threads, you can take advantage of the additional keyword argument `show_thread` accepted by `set_debug(...)` to control whether each line of output is prefixed with the thread name.  (It's `False` by default.)
+The above will turn on debug logging and send output to the default destination, which is the standard error stream (`sys.stderr`).  To send the output to a different destination, use the optional second argument `debug_output`, which can be either a file name, a stream, or the dash symbol (`-`); the latter indicates the destination should be the default (i.e., `sys.stderr`).  Here is an example:
+
+``` python
+if __debug__:
+    set_debug(True, '/tmp/debug.txt')
+```
+
+The function `set_debug(...)` also accepts another optional argument, `extra`, that lets you prefix every output line with extra text of your choosing.  The `extra` text string can contain [Python logging system % formatting strings](https://docs.python.org/library/logging.html#logrecord-attributes).  For example, the process ID can be inserted by passing `'%(process)d'` as in the following example:
+
+``` python
+if __debug__:
+    set_debug(True, debug_output, extra = '%(process)d')
+
+```
+If your program uses threads, you may find the use of `extra = "%(threadName)s"` helpful.
 
 
-### _How to call `log` and `logr`_
+### _How to call `log` and `logr` and format the output_
 
 The `log` function accepts one argument, a string, and any number of optional arguments.  Here's an example from an actual program that uses Sidetrack:
 
@@ -99,46 +113,51 @@ The `log` function accepts one argument, a string, and any number of optional ar
 if __debug__: log('exception (failure #{}): {}', failures, str(ex))
 ```
 
-
-  Internally, `log` applies `format` to the string and passes any remaining arguments as the arguments to `format`.  In other words, it is essentially the following pseudocode:
+Internally, `log` applies `format` to the string and passes any remaining arguments as the arguments to `format`.  In other words, it is essentially the following pseudocode:
 
 ``` python
-def log(s, *other_args):
-    final_text = s.format(*other_args)
+def log(msg, *other_args):
+    final_text = msg.format(*other_args)
     write_log(final_text)
 ```
 
-
 In the age of Python f-strings, the above may seem redundant and unnecessary: why not simply call `log` with an f-string?  In fact, in almost all cases, you can; however, there are also situations where f-strings cannot be used due to how they are evaluated at run time or due to [certain inherent limitations](https://www.python.org/dev/peps/pep-0498/#differences-between-f-string-and-str-format-expressions).  Having `log` operate like a call to `format` gives you the flexibility of using either style without having to remember a different API: you can use `log(f'some {value}')` if you wish, or `log('some {}', value)` if you prefer.
 
-The alternative function `logr` ('r' for 'raw') is available for use in situations where the string argument must _not_ be passed to `format`.  This is handy when the string contains character sequences that have special meaning to `format`, particularly in situations where the string contains references to variables that _might_ expand at run time to contain those characters &ndash; in other words, something that would be misinterpreted by `format` but is difficult to escape.
+The alternative function `logr` (`r` for _raw_) is available for use in situations where the string argument must _not_ be passed to `format`.  This is handy when the string contains character sequences that have special meaning to `format`, particularly in situations where the string contains references to variables that _might_ expand at run time to contain those characters &ndash; in other words, something that would be misinterpreted by `format` but is difficult to escape.
+
+In all cases, each line of the output has the following form:
+
+<p align="center">
+<i>extra</i>&nbsp;&nbsp;<b>filename:lineno</b>&nbsp;&nbsp;<b>function()</b> -- <b>message</b>
+</p>
+
+where _extra_ is optional and controlled by the argument `extra` to `set_debug(...)`, and the remaining values are always printed: the file name, line number and function where the call to the `log` or `logr` was made, and the message.  Examples are shown in the next section.
 
 
 ### _Tips for using Sidetrack_
 
-Throughout the rest of your code, in places where it's useful, add calls to `log(...)` and/or `logr(...)`.  Here's a simple contrived example:
+Throughout the rest of your code, in places where it's useful, add calls to `log(...)` and/or `logr(...)`.  Here's a simple contrived example, taken from the [demonstration program](tests/demo_debug.py) supplied with Sidetrack:
+
 
 ``` python
-    if __debug__: log('=== demo program starting ===')
+if __debug__: log('=== demo program starting ===')
 
-    print('Looping my loopy loop:')
-    for i in range(0, 5):
-        if __debug__: log(f'loop value {i}')
-        print('  Another go-around the loop')
-    print('Done looping.')
+print('Looping my loopy loop:')
+for i in range(0, 3):
+    if __debug__: log(f'loop value {i}')
+    print('Another go-around the loop')
+print('Done looping.')
 
-    if __debug__: log('=== demo program stopping ===')
+if __debug__: log('=== demo program stopping ===')
 ```
 
 With the code above, if debugging is _not_ turned on, _or_ the program is running with [Python optimization turned on](https://docs.python.org/3/using/cmdline.html#cmdoption-o), the output will be:
 
 ``` text
 Looping my loopy loop:
-  Another go-around the loop
-  Another go-around the loop
-  Another go-around the loop
-  Another go-around the loop
-  Another go-around the loop
+Another go-around the loop
+Another go-around the loop
+Another go-around the loop
 Done looping.
 ```
 
@@ -148,22 +167,16 @@ With debugging turned on and the destination set to `-`, the output becomes:
 demo_debug.py:32 main() -- === demo program starting ===
 Looping my loopy loop:
 demo_debug.py:36 main() -- loop value 0
-  Another go-around the loop
+Another go-around the loop
 demo_debug.py:36 main() -- loop value 1
-  Another go-around the loop
+Another go-around the loop
 demo_debug.py:36 main() -- loop value 2
-  Another go-around the loop
-demo_debug.py:36 main() -- loop value 3
-  Another go-around the loop
-demo_debug.py:36 main() -- loop value 4
-  Another go-around the loop
+Another go-around the loop
 Done looping.
 demo_debug.py:40 main() -- === demo program stopping ===
 ```
 
-Being able to send the debug output to a file becomes useful when dealing with longer and more complicated programs &ndash; it makes it possible to store a detailed trace without cluttering the output as it is in the sample above.
-
-File output can also be useful for deployed code: you can leave the debug functionality in your code and instruct your users to turn on debugging with output directed to a file, then send you the file so you can debug problems more easily.
+Being able to send the debug output to a file becomes useful when dealing with longer and more complicated programs &ndash; it makes it possible to store a detailed trace without cluttering the output as it is in the sample above.  File output can also be useful for deployed code: you can leave the debug functionality in your code and instruct your users to turn on debugging with output directed to a file, then send you the file so you can debug problems more easily.
 
 
 ### _How to run the demo program_

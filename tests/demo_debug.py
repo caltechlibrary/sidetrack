@@ -26,11 +26,12 @@ if __debug__:
 
 # The following defines the command-line arguments accepted by this demo program.
 @plac.annotations(
-    debug       = ('write detailed trace to "OUT" ("-" means console)', 'option', 'd'),
-    show_thread = ('print thread name in -d output (default: False)', 'flag', 't'),
+    debug       = ('write detailed trace to "OUT" ("-" means console)',  'option', 'd'),
+    show_thread = ('print thread name in -d output (default: False)',    'flag', 't'),
+    show_pid    = ('print the process id in -d output (default: False)', 'flag', 'p'),
 )
 
-def main(debug = 'OUT', show_thread = False):
+def main(debug = 'OUT', show_thread = False, show_pid = False):
     '''Demonstrate the use of Sidetrack. Use -h for help.'''
 
     # "OUT" is just a placeholder. If the user supplies argument -d with a
@@ -39,20 +40,28 @@ def main(debug = 'OUT', show_thread = False):
     if debug != 'OUT':
         print('Debug argument -d given.')
         if __debug__:
-            set_debug(True, debug, show_thread)
+            extra = ''
+            if show_pid:
+                print('Show_pid argument -p given.')
+                extra += '(pid %(process)d)'
+            if show_thread:
+                print('Show_thread argument -t given.')
+                extra += ' ' if show_pid else ''
+                extra += '%(threadName)s'
+            set_debug(True, debug, extra = extra)
         else:
             print('Python -O is in effect, so debug logging is not available.')
 
     if __debug__: log('=== demo program starting ===')
 
     print('Looping my loopy loop:')
-    for i in range(0, 5):
+    for i in range(0, 3):
         if __debug__: log(f'loop value {i}')
-        print('  Another go-around the loop')
+        print('Another go-around the loop')
     print('Done looping.')
 
     if __debug__: log('=== demo program stopping ===')
 
-
+# Invoke the main routine.
 if __name__ == '__main__':
     plac.call(main)
