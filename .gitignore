@@ -84,3 +84,8 @@ __pycache__
 
 # Project-specific things to ignore:
 # .............................................................................
+
+sidetrack.egg-info
+*.bak
+build
+dist
