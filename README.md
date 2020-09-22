@@ -79,17 +79,28 @@ The fragment above illustrates another tip: to make calls to the `log` functions
 
 ### _How to turn on debug logging_
 
-To turn on logging, call `set_debug(...)` at least once in your code.  Often, this will most convenient if combined with a command-line argument to your program, so that debug tracing can be enabled or disabled at run-time.  The following code gives the general idea.  (The [demonstration program](tests/demo_debug.py) supplied with Sidetrack provides a full running version.)
+To turn on logging, call `set_debug(...)` at least once in your code.  Often, this will most convenient if combined with a command-line argument to your program, so that debug tracing can be enabled or disabled at run-time.  The following example shows the basic usage.
 
 ``` python
 if __debug__:
-    set_debug(True, debug_output)
+    set_debug(True)
 else:
     print('Python -O is in effect, so debug logging is not available.')
 ```
 
-The above will turn on debug logging and send it to the destination `debug_output`, which can be either a file name or the dash symbol (`-`); the latter indicates the destination should be standard output.  If your program uses threads, you can take advantage of the additional keyword argument `show_thread` accepted by `set_debug(...)` to control whether each line of output is prefixed with the thread name.  (It's `False` by default.)
+The above will turn on debug logging and send output to the default destination, which is the standard error stream (`sys.stderr`).  To send the output to a different destination, use the optional second argument `debug_output`, which can be either a file name, a stream, or the dash symbol (`-`); the latter indicates the destination should be the default (i.e., `sys.stderr`).  Here is an example:
 
+``` python
+if __debug__:
+    set_debug(True, '/tmp/debug.txt')
+```
+
+If your program uses threads, you can take advantage of the additional keyword argument `show_thread` accepted by `set_debug(...)` to control whether each line of output is prefixed with the thread name.  (It's `False` by default.)  A final optional argument is `extra`, which can be used to add additional text inserted before the logged message (and before the thread name if `show_thread` = `True`).  The `extra` text string can contain [Python logging system % formatting strings](https://docs.python.org/library/logging.html#logrecord-attributes).  For example, the process ID can be inserted by passing `'%(process)d'` as in the following example:
+
+``` python
+if __debug__:
+    set_debug(True, debug_output, show_thread = True, extra = '%(process)d')
+```
 
 ### _How to call `log` and `logr`_
 
@@ -99,8 +110,7 @@ The `log` function accepts one argument, a string, and any number of optional ar
 if __debug__: log('exception (failure #{}): {}', failures, str(ex))
 ```
 
-
-  Internally, `log` applies `format` to the string and passes any remaining arguments as the arguments to `format`.  In other words, it is essentially the following pseudocode:
+Internally, `log` applies `format` to the string and passes any remaining arguments as the arguments to `format`.  In other words, it is essentially the following pseudocode:
 
 ``` python
 def log(s, *other_args):
@@ -116,27 +126,28 @@ The alternative function `logr` ('r' for 'raw') is available for use in situatio
 
 ### _Tips for using Sidetrack_
 
-Throughout the rest of your code, in places where it's useful, add calls to `log(...)` and/or `logr(...)`.  Here's a simple contrived example:
+Throughout the rest of your code, in places where it's useful, add calls to `log(...)` and/or `logr(...)`.  Here's a simple contrived example, taken from the [demonstration program](tests/demo_debug.py) supplied with Sidetrack:
+
 
 ``` python
-    if __debug__: log('=== demo program starting ===')
+if __debug__: log('=== demo program starting ===')
 
-    print('Looping my loopy loop:')
-    for i in range(0, 3):
-        if __debug__: log(f'loop value {i}')
-        print('  Another go-around the loop')
-    print('Done looping.')
+print('Looping my loopy loop:')
+for i in range(0, 3):
+    if __debug__: log(f'loop value {i}')
+    print('Another go-around the loop')
+print('Done looping.')
 
-    if __debug__: log('=== demo program stopping ===')
+if __debug__: log('=== demo program stopping ===')
 ```
 
 With the code above, if debugging is _not_ turned on, _or_ the program is running with [Python optimization turned on](https://docs.python.org/3/using/cmdline.html#cmdoption-o), the output will be:
 
 ``` text
 Looping my loopy loop:
-  Another go-around the loop
-  Another go-around the loop
-  Another go-around the loop
+Another go-around the loop
+Another go-around the loop
+Another go-around the loop
 Done looping.
 ```
 
