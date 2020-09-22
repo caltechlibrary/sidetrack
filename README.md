@@ -102,7 +102,7 @@ if __debug__:
     set_debug(True, debug_output, show_thread = True, extra = '%(process)d')
 ```
 
-### _How to call `log` and `logr`_
+### _How to call `log` and `logr` and format the output_
 
 The `log` function accepts one argument, a string, and any number of optional arguments.  Here's an example from an actual program that uses Sidetrack:
 
@@ -113,15 +113,22 @@ if __debug__: log('exception (failure #{}): {}', failures, str(ex))
 Internally, `log` applies `format` to the string and passes any remaining arguments as the arguments to `format`.  In other words, it is essentially the following pseudocode:
 
 ``` python
-def log(s, *other_args):
-    final_text = s.format(*other_args)
+def log(msg, *other_args):
+    final_text = msg.format(*other_args)
     write_log(final_text)
 ```
 
-
 In the age of Python f-strings, the above may seem redundant and unnecessary: why not simply call `log` with an f-string?  In fact, in almost all cases, you can; however, there are also situations where f-strings cannot be used due to how they are evaluated at run time or due to [certain inherent limitations](https://www.python.org/dev/peps/pep-0498/#differences-between-f-string-and-str-format-expressions).  Having `log` operate like a call to `format` gives you the flexibility of using either style without having to remember a different API: you can use `log(f'some {value}')` if you wish, or `log('some {}', value)` if you prefer.
 
-The alternative function `logr` ('r' for 'raw') is available for use in situations where the string argument must _not_ be passed to `format`.  This is handy when the string contains character sequences that have special meaning to `format`, particularly in situations where the string contains references to variables that _might_ expand at run time to contain those characters &ndash; in other words, something that would be misinterpreted by `format` but is difficult to escape.
+The alternative function `logr` (`r` for _raw_) is available for use in situations where the string argument must _not_ be passed to `format`.  This is handy when the string contains character sequences that have special meaning to `format`, particularly in situations where the string contains references to variables that _might_ expand at run time to contain those characters &ndash; in other words, something that would be misinterpreted by `format` but is difficult to escape.
+
+In all cases, each line of the output has the following form:
+
+<p align="center">
+<i>extra</i>&nbsp;&nbsp;<i>threadname</i>&nbsp;&nbsp;<b>filename:lineno</b>&nbsp;&nbsp;<b>function()</b> -- <b>message</b>
+</p>
+
+where _extra_ and _threadname_ are optional and controlled by the arguments `extra` and `show_thread`, respectively, to `set_debug(...)`, and the remaining values are always printed: the file name, line number and function where the call to the `log` or `logr` was made, and the message.  Examples are shown in the next section.
 
 
 ### _Tips for using Sidetrack_
