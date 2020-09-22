@@ -95,12 +95,15 @@ if __debug__:
     set_debug(True, '/tmp/debug.txt')
 ```
 
-If your program uses threads, you can take advantage of the additional keyword argument `show_thread` accepted by `set_debug(...)` to control whether each line of output is prefixed with the thread name.  (It's `False` by default.)  A final optional argument is `extra`, which can be used to add additional text inserted before the logged message (and before the thread name if `show_thread` = `True`).  The `extra` text string can contain [Python logging system % formatting strings](https://docs.python.org/library/logging.html#logrecord-attributes).  For example, the process ID can be inserted by passing `'%(process)d'` as in the following example:
+The function `set_debug(...)` also accepts another optional argument, `extra`, that lets you prefix every output line with extra text of your choosing.  The `extra` text string can contain [Python logging system % formatting strings](https://docs.python.org/library/logging.html#logrecord-attributes).  For example, the process ID can be inserted by passing `'%(process)d'` as in the following example:
 
 ``` python
 if __debug__:
-    set_debug(True, debug_output, show_thread = True, extra = '%(process)d')
+    set_debug(True, debug_output, extra = '%(process)d')
+
 ```
+If your program uses threads, you may find the use of `extra = "%(threadName)s"` helpful.
+
 
 ### _How to call `log` and `logr` and format the output_
 
@@ -125,10 +128,10 @@ The alternative function `logr` (`r` for _raw_) is available for use in situatio
 In all cases, each line of the output has the following form:
 
 <p align="center">
-<i>extra</i>&nbsp;&nbsp;<i>threadname</i>&nbsp;&nbsp;<b>filename:lineno</b>&nbsp;&nbsp;<b>function()</b> -- <b>message</b>
+<i>extra</i>&nbsp;&nbsp;<b>filename:lineno</b>&nbsp;&nbsp;<b>function()</b> -- <b>message</b>
 </p>
 
-where _extra_ and _threadname_ are optional and controlled by the arguments `extra` and `show_thread`, respectively, to `set_debug(...)`, and the remaining values are always printed: the file name, line number and function where the call to the `log` or `logr` was made, and the message.  Examples are shown in the next section.
+where _extra_ is optional and controlled by the argument `extra` to `set_debug(...)`, and the remaining values are always printed: the file name, line number and function where the call to the `log` or `logr` was made, and the message.  Examples are shown in the next section.
 
 
 ### _Tips for using Sidetrack_
@@ -173,9 +176,7 @@ Done looping.
 demo_debug.py:40 main() -- === demo program stopping ===
 ```
 
-Being able to send the debug output to a file becomes useful when dealing with longer and more complicated programs &ndash; it makes it possible to store a detailed trace without cluttering the output as it is in the sample above.
-
-File output can also be useful for deployed code: you can leave the debug functionality in your code and instruct your users to turn on debugging with output directed to a file, then send you the file so you can debug problems more easily.
+Being able to send the debug output to a file becomes useful when dealing with longer and more complicated programs &ndash; it makes it possible to store a detailed trace without cluttering the output as it is in the sample above.  File output can also be useful for deployed code: you can leave the debug functionality in your code and instruct your users to turn on debugging with output directed to a file, then send you the file so you can debug problems more easily.
 
 
 ### _How to run the demo program_

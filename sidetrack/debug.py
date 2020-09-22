@@ -37,7 +37,7 @@ if __debug__:
 # Exported functions.
 # .............................................................................
 
-def set_debug(enabled, dest = '-', show_thread = False, extra = ''):
+def set_debug(enabled, dest = '-', extra = ''):
     '''Turns on debug logging if 'enabled' is True; turns it off otherwise.
 
     Optional argument 'dest' changes the debug output to the given destination.
@@ -47,16 +47,11 @@ def set_debug(enabled, dest = '-', show_thread = False, extra = ''):
     given a time; calling this function multiple times with different
     destinations simply switches the destination to the latest one.
 
-    Optional argument 'show_thread' determines whether the name of the current
-    thread prefixes every output line.  Setting the value to True is useful if
-    the calling programming uses multiple threads; otherwise, it's probably
-    best to leave it False to reduce clutter in the output.
-
     Optional argument 'extra' is additional text inserted before the logged
-    message (and before the thread name if show_thread = True).  The 'extra'
-    text string can contain Python logging system % formatting strings.  For
-    example, the process ID can be inserted by passing extra = '%(process)d'.
-    For information about available formatting directives, please consult
+    message.  The 'extra' text string can contain % formatting strings defined
+    by the Python logging package.  For example, the current thread name can be
+    inserted by setting extra = '%(threadName)s'.  For information about the
+    available formatting directives, please consult the Python logging docs at
     https://docs.python.org/library/logging.html#logrecord-attributes
 
     This uses the Python logging framework to print messages.  The messages
@@ -70,8 +65,6 @@ def set_debug(enabled, dest = '-', show_thread = False, extra = ''):
         if enabled:
             logger = logging.getLogger(__package__)
             front_part = (str(extra) + ' ') if extra else ''
-            if show_thread:
-                front_part += '%(threadName)s '
             formatter = logging.Formatter(front_part + '%(message)s')
             # We only allow one active destination.
             for h in logger.handlers:

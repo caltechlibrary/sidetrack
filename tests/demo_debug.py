@@ -40,12 +40,15 @@ def main(debug = 'OUT', show_thread = False, show_pid = False):
     if debug != 'OUT':
         print('Debug argument -d given.')
         if __debug__:
-            if show_thread:
-                print('Show_thread argument -t given.')
+            extra = ''
             if show_pid:
                 print('Show_pid argument -p given.')
-            extra = '(pid %(process)d)' if show_pid else ''
-            set_debug(True, debug, show_thread, extra = extra)
+                extra += '(pid %(process)d)'
+            if show_thread:
+                print('Show_thread argument -t given.')
+                extra += ' ' if show_pid else ''
+                extra += '%(threadName)s'
+            set_debug(True, debug, extra = extra)
         else:
             print('Python -O is in effect, so debug logging is not available.')
 
