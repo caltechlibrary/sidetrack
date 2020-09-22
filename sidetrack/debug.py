@@ -42,10 +42,10 @@ def set_debug(enabled, dest = '-', show_thread = False, extra = ''):
 
     Optional argument 'dest' changes the debug output to the given destination.
     The value can be a file path, or a single dash ('-') to indicate the
-    console (standard output).  The default destination is the console.  For
-    simplicity, only one destination is allowed at given a time; calling this
-    function multiple times with different destinations simply switches the
-    destination to the latest one.
+    standard error stream (i.e., sys.stderr).  The default destination is the
+    standard error stream.  For simplicity, only one destination is allowed at
+    given a time; calling this function multiple times with different
+    destinations simply switches the destination to the latest one.
 
     Optional argument 'show_thread' determines whether the name of the current
     thread prefixes every output line.  Setting the value to True is useful if
@@ -79,6 +79,8 @@ def set_debug(enabled, dest = '-', show_thread = False, extra = ''):
             # We treat empty dest values as meaning "the default output".
             if dest in ['-', '', None]:
                 handler = StreamHandler()
+            elif type(dest) == type(sys.stderr):
+                handler = StreamHandler(dest)
             else:
                 handler = FileHandler(dest)
             handler.setFormatter(formatter)
