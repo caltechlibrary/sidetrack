@@ -37,7 +37,7 @@ if __debug__:
 # Exported functions.
 # .............................................................................
 
-def set_debug(enabled, dest = '-', show_thread = False):
+def set_debug(enabled, dest = '-', show_thread = False, extra = ''):
     '''Turns on debug logging if 'enabled' is True; turns it off otherwise.
 
     Optional argument 'dest' changes the debug output to the given destination.
@@ -51,6 +51,16 @@ def set_debug(enabled, dest = '-', show_thread = False):
     thread prefixes every output line.  Setting the value to True is useful if
     the calling programming uses multiple threads; otherwise, it's probably
     best to leave it False to reduce clutter in the output.
+
+    Optional argument 'extra' is additional text inserted before the logged
+    message (and before the thread name if show_thread = True).  The 'extra'
+    text string can contain Python logging system % formatting strings.  For
+    example, the process ID can be inserted by passing extra = '%(process)d'.
+    For information about available formatting directives, please consult
+    https://docs.python.org/library/logging.html#logrecord-attributes
+
+    This uses the Python logging framework to print messages.  The messages
+    are printed with level DEBUG.
     '''
     if __debug__:
         from logging import DEBUG, WARNING, FileHandler, StreamHandler
@@ -58,11 +68,11 @@ def set_debug(enabled, dest = '-', show_thread = False):
 
         # Set the appropriate output destination if we haven't already.
         if enabled:
-            logger    = logging.getLogger(__package__)
+            logger = logging.getLogger(__package__)
+            front_part = (str(extra) + ' ') if extra else ''
             if show_thread:
-                formatter = logging.Formatter('%(threadName)s %(message)s')
-            else:
-                formatter = logging.Formatter('%(message)s')
+                front_part += '%(threadName)s '
+            formatter = logging.Formatter(front_part + '%(message)s')
             # We only allow one active destination.
             for h in logger.handlers:
                 logger.removeHandler(h)
