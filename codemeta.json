@@ -6,7 +6,7 @@
   "codeRepository": "https://github.com/caltechlibrary/sidetrack",
   "issueTracker": "https://github.com/caltechlibrary/sidetrack/issues",
   "license": "https://github.com/caltechlibrary/sidetrack/blob/master/LICENSE",
-  "version": "1.0.1",
+  "version": "1.1.0",
   "author": [
     {
       "@type": "Person",
