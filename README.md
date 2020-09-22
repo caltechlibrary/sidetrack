@@ -122,7 +122,7 @@ Throughout the rest of your code, in places where it's useful, add calls to `log
     if __debug__: log('=== demo program starting ===')
 
     print('Looping my loopy loop:')
-    for i in range(0, 5):
+    for i in range(0, 3):
         if __debug__: log(f'loop value {i}')
         print('  Another go-around the loop')
     print('Done looping.')
@@ -137,8 +137,6 @@ Looping my loopy loop:
   Another go-around the loop
   Another go-around the loop
   Another go-around the loop
-  Another go-around the loop
-  Another go-around the loop
 Done looping.
 ```
 
@@ -148,15 +146,11 @@ With debugging turned on and the destination set to `-`, the output becomes:
 demo_debug.py:32 main() -- === demo program starting ===
 Looping my loopy loop:
 demo_debug.py:36 main() -- loop value 0
-  Another go-around the loop
+Another go-around the loop
 demo_debug.py:36 main() -- loop value 1
-  Another go-around the loop
+Another go-around the loop
 demo_debug.py:36 main() -- loop value 2
-  Another go-around the loop
-demo_debug.py:36 main() -- loop value 3
-  Another go-around the loop
-demo_debug.py:36 main() -- loop value 4
-  Another go-around the loop
+Another go-around the loop
 Done looping.
 demo_debug.py:40 main() -- === demo program stopping ===
 ```
