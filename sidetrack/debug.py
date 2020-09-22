@@ -87,36 +87,40 @@ def set_debug(enabled, dest = '-', show_thread = False):
 # stacklevel as the argument. The code below instead uses the Python inspect
 # module to get the correct stack frame at run time.
 
-def log(s, *other_args):
-    '''Logs a debug message. 's' can contain format directive, and the
-    remaining arguments are the arguments to the format string.
+def log(msg, *other_args):
+    '''Logs a debug message.
+
+    The "msg" can contain string format directives.  The "other_args" are
+    arguments that are merged into "msg" using str.format.
     '''
     if __debug__:
         # This test for the level may seem redundant, but it's not: it prevents
         # the string format from always being performed if logging is not
         # turned on and the user isn't running Python with -O.
         if getattr(sys.modules[__package__], '_debugging'):
-            __write_log(s.format(*other_args), currentframe().f_back)
+            __write_log(msg.format(*other_args), currentframe().f_back)
 
 
-def logr(s):
-    '''Logs a debug message. 's' is taken as-is; unlike log(...), logr(...)
-    does not apply format to the string.
+def logr(msg):
+    '''Logs a debug message in raw form, without further interpretation.
+
+    The text string 'msg' is taken as-is; unlike the function log(...), this
+    function does not apply str.format to the string.
     '''
     if __debug__:
         # This test for the level may seem redundant, but it's not: it prevents
         # the string format from always being performed if logging is not
         # turned on and the user isn't running Python with -O.
         if getattr(sys.modules[__package__], '_debugging'):
-            __write_log(s, currentframe().f_back)
+            __write_log(msg, currentframe().f_back)
 
 
 # Internal helper functions.
 # .............................................................................
 
-def __write_log(s, frame):
+def __write_log(msg, frame):
     func   = frame.f_code.co_name
     lineno = frame.f_lineno
     file   = path.basename(frame.f_code.co_filename)
     logger = logging.getLogger(__package__)
-    logger.debug(f'{file}:{lineno} {func}() -- ' + s)
+    logger.debug(f'{file}:{lineno} {func}() -- ' + msg)
