@@ -1,6 +1,12 @@
 Change log for Sidetrack
 ========================
 
+Version 1.2.0
+-------------
+
+This version brings no changes to the API, but does remove a dependency on `setuptools`, and brings internal changes that solve problems in using Sidetrack inside binaries produced by [PyInstaller](https://pyinstaller.readthedocs.io).  The internal changes remove a clever but problematic scheme for retrieving package metadata, and replaces it with a more conventional approach (storing version info directly into `__init__.py`) with accompanying automation in the `Makefile` to make it all work.  Beneficial side-effect: the `import sidetrack` statement should run faster now.
+
+
 Version 1.1.0
 -------------
 
@@ -8,7 +14,6 @@ Version 1.1.0
 * Allow the destination parameter for `set_debug(...)` to be a stream, not just '-' or a file.
 * Fix documentation to explain that the default output is `sys.stderr`, not `sys.stdout`.
 * Additional documentation fixes and edits.
-* Internal changes related to how version metadata is stored and maintained.
 
 
 Version 1.0.1
