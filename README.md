@@ -6,7 +6,7 @@ _Sidetrack_ provides a simple interface for writing log messages in Python progr
 [![License](https://img.shields.io/badge/License-BSD%203--Clause-blue.svg?style=flat-square)](https://choosealicense.com/licenses/bsd-3-clause)
 [![Python](https://img.shields.io/badge/Python-3.6+-brightgreen.svg?style=flat-square)](http://shields.io)
 [![Latest release](https://img.shields.io/github/v/release/caltechlibrary/sidetrack.svg?style=flat-square&color=b44e88)](https://github.com/caltechlibrary/sidetrack/releases)
-[![DOI](http://img.shields.io/badge/DOI-10.22002/D1.1629-blue.svg?style=flat-square)](https://data.caltech.edu/records/1629)
+[![DOI](http://img.shields.io/badge/DOI-10.22002/D1.1633-blue.svg?style=flat-square)](https://data.caltech.edu/records/1633)
 [![PyPI](https://img.shields.io/pypi/v/sidetrack.svg?style=flat-square&color=red)](https://pypi.org/project/sidetrack/)
 
 
