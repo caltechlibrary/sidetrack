@@ -8,6 +8,7 @@ Version 1.1.0
 * Allow the destination parameter for `set_debug(...)` to be a stream, not just '-' or a file.
 * Fix documentation to explain that the default output is `sys.stderr`, not `sys.stdout`.
 * Additional documentation fixes and edits.
+* Internal changes related to how version metadata is stored and maintained.
 
 
 Version 1.0.1
