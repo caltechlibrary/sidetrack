@@ -34,7 +34,7 @@ id_url	  := https://data.caltech.edu/badge/latestdoi/$(id)
 doi_url	  := $(shell curl -sILk $(id_url) | grep Locat | cut -f2 -d' ')
 doi	  := $(subst https://doi.org/,,$(doi_url))
 doi_tail  := $(lastword $(subst ., ,$(doi)))
-init_file := $(shell find . -name __init__.py)
+init_file := ./$(name)/__init__.py
 tmp_file  := $(shell mktemp /tmp/release-notes-$(name).XXXXXX)
 
 $(info Gathering data ... Done.)
@@ -74,7 +74,7 @@ release-on-github: | update-init-file update-codemeta-file check-in-updated-file
 	$(info ┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛)
 	sleep 2
 	$(EDITOR) $(tmp_file)
-	gh release create v$(version) -d -t "Release $(version)" -F $(tmp_file)
+	gh release create v$(version) -t "Release $(version)" -F $(tmp_file)
 
 print-instructions:;
 	$(info ┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓)
