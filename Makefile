@@ -17,15 +17,27 @@ TEST := $(foreach p,$(PROGRAMS_NEEDED),\
 
 # Gather values that we need further below.
 
-name	 := $(shell grep 'name\s*=' setup.cfg | cut -f2 -d'=' | tr -d '[:blank:]')
-version	 := $(shell grep 'version\s*=' setup.cfg | cut -f2 -d'=' | tr -d '[:blank:]')
-branch	 := $(shell git rev-parse --abbrev-ref HEAD)
-repo	 := $(shell gh repo view | head -1 | cut -f2 -d':' | tr -d '[:blank:]')
-id	 := $(shell curl -s https://api.github.com/repos/$(repo) | jq '.id')
-doi_url	 := $(shell curl -sILk https://data.caltech.edu/badge/latestdoi/$(id) | grep Locat | cut -f2 -d' ')
-doi	 := $(subst https://doi.org/,,$(doi_url))
-doi_tail := $(lastword $(subst ., ,$(doi)))
-tempfile := $(shell mktemp /tmp/release-notes-$(name).XXXXXX)
+$(info Gathering data -- this takes a few moments ...)
+
+name	:= $(strip $(shell grep -m 1 'name\s*=' setup.cfg	  | cut -f2 -d'='))
+version	:= $(strip $(shell grep -m 1 'version\s*=' setup.cfg	  | cut -f2 -d'='))
+url	:= $(strip $(shell grep -m 1 'url\s*=' setup.cfg	  | cut -f2 -d'='))
+desc	:= $(strip $(shell grep -m 1 'description\s*=' setup.cfg  | cut -f2 -d'='))
+author	:= $(strip $(shell grep -m 1 'author\s*=' setup.cfg	  | cut -f2 -d'='))
+email	:= $(strip $(shell grep -m 1 'author_email\s*=' setup.cfg | cut -f2 -d'='))
+license	:= $(strip $(shell grep -m 1 'license\s*=' setup.cfg      | cut -f2 -d'='))
+
+branch	  := $(shell git rev-parse --abbrev-ref HEAD)
+repo	  := $(strip $(shell gh repo view | head -1 | cut -f2 -d':'))
+id	  := $(shell curl -s https://api.github.com/repos/$(repo) | jq '.id')
+id_url	  := https://data.caltech.edu/badge/latestdoi/$(id)
+doi_url	  := $(shell curl -sILk $(id_url) | grep Locat | cut -f2 -d' ')
+doi	  := $(subst https://doi.org/,,$(doi_url))
+doi_tail  := $(lastword $(subst ., ,$(doi)))
+init_file := $(shell find . -name __init__.py)
+tmp_file  := $(shell mktemp /tmp/release-notes-$(name).XXXXXX)
+
+$(info Gathering data ... Done.)
 
 # The main action is "make release".
 
@@ -36,10 +48,24 @@ ifneq ($(branch),main)
 	$(error Current git branch != main. Merge changes into main first)
 endif
 
-release-on-github:;
-	sed -i .bak -e "/version/ s/[0-9].[0-9].[0-9]/$(version)/" codemeta.json
-	git add codemeta.json
-	git diff-index --quiet HEAD codemeta.json || git commit -m"Update version number" codemeta.json
+update-init-file:;
+	@sed -i .bak -e "s|^\(__version__ *=\).*|\1 '$(version)'|"  $(init_file)
+	@sed -i .bak -e "s|^\(__description__ *=\).*|\1 '$(desc)'|" $(init_file)
+	@sed -i .bak -e "s|^\(__url__ *=\).*|\1 '$(url)'|"	    $(init_file)
+	@sed -i .bak -e "s|^\(__author__ *=\).*|\1 '$(author)'|"    $(init_file)
+	@sed -i .bak -e "s|^\(__email__ *=\).*|\1 '$(email)'|"	    $(init_file)
+	@sed -i .bak -e "s|^\(__license__ *=\).*|\1 '$(license)'|"  $(init_file)
+
+update-codemeta-file:;
+	@sed -i .bak -e "/version/ s/[0-9].[0-9].[0-9]/$(version)/" codemeta.json
+
+edited := codemeta.json $(init_file)
+
+check-in-updated-files:;
+	git add $(edited)
+	git diff-index --quiet HEAD $(edited) || git commit -m"Update version" $(edited)
+
+release-on-github: | update-init-file update-codemeta-file check-in-updated-files
 	git push -v --all
 	git push -v --tags
 	$(info ┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓)
@@ -47,8 +73,8 @@ release-on-github:;
 	$(info ┃ then save and close the file to complete this release process.     ┃)
 	$(info ┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛)
 	sleep 2
-	$(EDITOR) $(tempfile)
-	gh release create v$(version) -d -t "Release $(version)" -F $(tempfile)
+	$(EDITOR) $(tmp_file)
+	gh release create v$(version) -d -t "Release $(version)" -F $(tmp_file)
 
 print-instructions:;
 	$(info ┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓)
@@ -83,4 +109,5 @@ pypi: create-dist
 clean:;
 	-rm -rf dist build $(name).egg-info
 
-.PHONY: release release-on-github print-instructions clean test-pypi pypi
+.PHONY: release release-on-github update-init-file update-codemeta-file \
+	print-instructions clean test-pypi pypi
