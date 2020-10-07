@@ -8,10 +8,10 @@
 # =============================================================================
 
 # Before we go any further, test if certain programs are available.
-# The following is based on the approach by Jonathan Ben-Avraham posted to
+# The following is based on the approach posted by Jonathan Ben-Avraham to
 # Stack Overflow in 2014 at https://stackoverflow.com/a/25668869
 
-PROGRAMS_NEEDED = gh jq
+PROGRAMS_NEEDED = curl gh git jq sed
 TEST := $(foreach p,$(PROGRAMS_NEEDED),\
 	  $(if $(shell which $(p)),_,$(error Cannot find program "$(p)")))
 
@@ -34,7 +34,7 @@ id_url	  := https://data.caltech.edu/badge/latestdoi/$(id)
 doi_url	  := $(shell curl -sILk $(id_url) | grep Locat | cut -f2 -d' ')
 doi	  := $(subst https://doi.org/,,$(doi_url))
 doi_tail  := $(lastword $(subst ., ,$(doi)))
-init_file := ./$(name)/__init__.py
+init_file := $(name)/__init__.py
 tmp_file  := $(shell mktemp /tmp/release-notes-$(name).XXXXXX)
 
 $(info Gathering data ... Done.)
@@ -100,7 +100,7 @@ create-dist: clean
 	python3 setup.py sdist bdist_wheel
 	python3 -m twine check dist/*
 
-test-pypi:;
+test-pypi: create-dist
 	python3 -m twine upload --verbose --repository-url https://test.pypi.org/legacy/ dist/*
 
 pypi: create-dist
@@ -110,4 +110,4 @@ clean:;
 	-rm -rf dist build $(name).egg-info
 
 .PHONY: release release-on-github update-init-file update-codemeta-file \
-	print-instructions clean test-pypi pypi
+	print-instructions create-dist clean test-pypi pypi
