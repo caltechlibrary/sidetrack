@@ -34,6 +34,17 @@ if __debug__:
     setattr(sys.modules[__package__], '_debugging', False)
 
 
+# Constants.
+# .............................................................................
+
+# A custom level is used so that packages that turn off logging.DEBUG globally
+# don't end up disabling Sidetrack too.
+
+if __debug__:
+    from logging import DEBUG
+    SIDETRACK_DEBUG = logging.DEBUG + 1
+
+
 # Exported functions.
 # .............................................................................
 
@@ -55,10 +66,10 @@ def set_debug(enabled, dest = '-', extra = ''):
     https://docs.python.org/library/logging.html#logrecord-attributes
 
     This uses the Python logging framework to print messages.  The messages
-    are printed with level DEBUG.
+    are printed with level sidetrack.SIDETRACK_DEBUG.
     '''
     if __debug__:
-        from logging import DEBUG, WARNING, FileHandler, StreamHandler
+        from logging import WARNING, FileHandler, StreamHandler
         setattr(sys.modules[__package__], '_debugging', enabled)
 
         # Set the appropriate output destination if we haven't already.
@@ -77,9 +88,9 @@ def set_debug(enabled, dest = '-', extra = ''):
             else:
                 handler = FileHandler(dest)
             handler.setFormatter(formatter)
-            handler.setLevel(DEBUG)
+            handler.setLevel(SIDETRACK_DEBUG)
             logger.addHandler(handler)
-            logger.setLevel(DEBUG)
+            logger.setLevel(SIDETRACK_DEBUG)
             setattr(sys.modules[__package__], '_logger', logger)
         elif getattr(sys.modules[__package__], '_logger'):
             logger = logging.getLogger(__package__)
@@ -128,4 +139,4 @@ def __write_log(msg, frame):
     lineno = frame.f_lineno
     file   = path.basename(frame.f_code.co_filename)
     logger = logging.getLogger(__package__)
-    logger.debug(f'{file}:{lineno} {func}() -- ' + msg)
+    logger.log(SIDETRACK_DEBUG, f'{file}:{lineno} {func}() -- ' + msg)
