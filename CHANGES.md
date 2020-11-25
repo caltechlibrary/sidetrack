@@ -1,6 +1,12 @@
 Change log for Sidetrack
 ========================
 
+Version 1.3.0
+-------------
+
+This version changes the logging level used by Sidetrack.  The level is now set to the value of [logging.DEBUG](https://docs.python.org/3/library/logging.html#levels) + 1 (that is, the numeric value 11).  This solves a problem caused by Python packages that turn off `DEBUG`-level logging at import time: previously, if such a package was imported after Sidetrack was loaded, it would end up disabling Sidetrack as a side-effect.  This should no longer happen.  (As a result, we can now legitimately say that **Sidetrack goes to 11**.)
+
+
 Version 1.2.0
 -------------
 
