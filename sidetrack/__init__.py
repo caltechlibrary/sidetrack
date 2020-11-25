@@ -21,7 +21,7 @@ file "LICENSE" for more information.
 #  |    by the Makefile. Manual changes to these values will be lost.      |
 #  ╰────────────────────── Notice ── Notice ── Notice ─────────────────────╯
 
-__version__     = '1.2.0'
+__version__     = '1.3.0'
 __description__ = 'Simple debug tracing package for Python'
 __url__         = 'https://github.com/caltechlibrary/sidetrack'
 __author__      = 'Michael Hucka'
