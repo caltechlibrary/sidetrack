@@ -98,7 +98,7 @@ def set_debug(enabled, dest = '-', show_package = False, extra = ''):
             logger.addHandler(handler)
             logger.setLevel(SIDETRACK_DEBUG)
             setattr(sys.modules[__package__], '_logger', logger)
-        elif getattr(sys.modules[__package__], '_logger'):
+        elif getattr(sys.modules[__package__], '_logger', None):
             logger = logging.getLogger(__package__)
             logger.setLevel(WARNING)
 
@@ -119,7 +119,7 @@ def log(msg, *other_args):
         # This test for the level may seem redundant, but it's not: it prevents
         # the string format from always being performed if logging is not
         # turned on and the user isn't running Python with -O.
-        if getattr(sys.modules[__package__], '_debugging'):
+        if getattr(sys.modules[__package__], '_debugging', False):
             __write_log(msg.format(*other_args), currentframe().f_back)
 
 
@@ -133,7 +133,7 @@ def logr(msg):
         # This test for the level may seem redundant, but it's not: it prevents
         # the string format from always being performed if logging is not
         # turned on and the user isn't running Python with -O.
-        if getattr(sys.modules[__package__], '_debugging'):
+        if getattr(sys.modules[__package__], '_debugging', False):
             __write_log(msg, currentframe().f_back)
 
 
@@ -143,7 +143,7 @@ def logr(msg):
 def __write_log(msg, frame):
     func   = frame.f_code.co_name
     lineno = frame.f_lineno
-    if getattr(sys.modules[__package__], '_show_package'):
+    if getattr(sys.modules[__package__], '_show_package', False):
         package = frame.f_globals['__package__']
         pkg = f'<{package}> ' if package else ''
     else:
