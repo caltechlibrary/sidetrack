@@ -83,7 +83,8 @@ To turn on logging, call `set_debug(...)` at least once in your code.  Often, th
 
 ``` python
 if __debug__:
-    set_debug(True)
+    if ...some condition of your choosing...:
+        set_debug(True)
 else:
     print('Python -O is in effect, so debug logging is not available.')
 ```
@@ -92,10 +93,17 @@ The above will turn on debug logging and send output to the default destination,
 
 ``` python
 if __debug__:
-    set_debug(True, '/tmp/debug.txt')
+    set_debug(True, dest = '/tmp/debug.txt')
 ```
 
-The function `set_debug(...)` also accepts another optional argument, `extra`, that lets you prefix every output line with extra text of your choosing.  The `extra` text string can contain [Python logging system % formatting strings](https://docs.python.org/library/logging.html#logrecord-attributes).  For example, the process ID can be inserted by passing `'%(process)d'` as in the following example:
+The function `set_debug` also accepts another optional argument, `show_package`, that causes Sidetrack each `log` or `logr` message to be prefixed with the name of the Python package containing the source file where the `log` or `logr` is used.  This is very helpful when Sidetrack is used in multiple packages.
+
+``` python
+if __debug__:
+    set_debug(True, show_package = True)
+```
+
+Finally, the function `set_debug(...)` also accepts one more optional argument, `extra`, that lets you prefix every output line with extra text of your choosing.  The `extra` text string can contain [Python logging system % formatting strings](https://docs.python.org/library/logging.html#logrecord-attributes).  For example, the process ID can be inserted by passing `'%(process)d'` as in the following example:
 
 ``` python
 if __debug__:
@@ -128,10 +136,10 @@ The alternative function `logr` (`r` for _raw_) is available for use in situatio
 In all cases, each line of the output has the following form:
 
 <p align="center">
-<i>extra</i>&nbsp;&nbsp;<b>filename:lineno</b>&nbsp;&nbsp;<b>function()</b> -- <b>message</b>
+<<i>package</i>> <i>extra</i>&nbsp;&nbsp;<b>filename:lineno</b>&nbsp;&nbsp;<b>function()</b> -- <b>message</b>
 </p>
 
-where _extra_ is optional and controlled by the argument `extra` to `set_debug(...)`, and the remaining values are always printed: the file name, line number and function where the call to the `log` or `logr` was made, and the message.  Examples are shown in the next section.
+where _package_ and _extra_ are optional and controlled by the arguments `show_package` and `extra`, respectively, to `set_debug(...)`, and the remaining values are always printed: the file name, line number and function where the call to the `log` or `logr` was made, and the message.  Examples are shown in the next section.
 
 
 ### _Tips for using Sidetrack_
