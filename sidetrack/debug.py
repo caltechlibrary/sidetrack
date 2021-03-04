@@ -48,15 +48,20 @@ if __debug__:
 # Exported functions.
 # .............................................................................
 
-def set_debug(enabled, dest = '-', extra = ''):
+def set_debug(enabled, dest = '-', show_package = False, extra = ''):
     '''Turns on debug logging if 'enabled' is True; turns it off otherwise.
 
-    Optional argument 'dest' changes the debug output to the given destination.
+    Optional argument 'dest' directs the output to the given destination.
     The value can be a file path, or a single dash ('-') to indicate the
     standard error stream (i.e., sys.stderr).  The default destination is the
     standard error stream.  For simplicity, only one destination is allowed at
     given a time; calling this function multiple times with different
     destinations simply switches the destination to the latest one.
+
+    Optional argument 'show_package' prepends the name of the package calling
+    the Sidetrack log functions to the log message.  This is False by default
+    because it it is only really useful if you use Sidetrack in multiple
+    packages, or import packages that also use Sidetrack.
 
     Optional argument 'extra' is additional text inserted before the logged
     message.  The 'extra' text string can contain % formatting strings defined
@@ -71,6 +76,7 @@ def set_debug(enabled, dest = '-', extra = ''):
     if __debug__:
         from logging import WARNING, FileHandler, StreamHandler
         setattr(sys.modules[__package__], '_debugging', enabled)
+        setattr(sys.modules[__package__], '_show_package', show_package)
 
         # Set the appropriate output destination if we haven't already.
         if enabled:
@@ -92,7 +98,7 @@ def set_debug(enabled, dest = '-', extra = ''):
             logger.addHandler(handler)
             logger.setLevel(SIDETRACK_DEBUG)
             setattr(sys.modules[__package__], '_logger', logger)
-        elif getattr(sys.modules[__package__], '_logger'):
+        elif getattr(sys.modules[__package__], '_logger', None):
             logger = logging.getLogger(__package__)
             logger.setLevel(WARNING)
 
@@ -113,7 +119,7 @@ def log(msg, *other_args):
         # This test for the level may seem redundant, but it's not: it prevents
         # the string format from always being performed if logging is not
         # turned on and the user isn't running Python with -O.
-        if getattr(sys.modules[__package__], '_debugging'):
+        if getattr(sys.modules[__package__], '_debugging', False):
             __write_log(msg.format(*other_args), currentframe().f_back)
 
 
@@ -127,7 +133,7 @@ def logr(msg):
         # This test for the level may seem redundant, but it's not: it prevents
         # the string format from always being performed if logging is not
         # turned on and the user isn't running Python with -O.
-        if getattr(sys.modules[__package__], '_debugging'):
+        if getattr(sys.modules[__package__], '_debugging', False):
             __write_log(msg, currentframe().f_back)
 
 
@@ -137,6 +143,11 @@ def logr(msg):
 def __write_log(msg, frame):
     func   = frame.f_code.co_name
     lineno = frame.f_lineno
+    if getattr(sys.modules[__package__], '_show_package', False):
+        package = frame.f_globals['__package__']
+        pkg = f'<{package}> ' if package else ''
+    else:
+        pkg = ''
     file   = path.basename(frame.f_code.co_filename)
     logger = logging.getLogger(__package__)
-    logger.log(SIDETRACK_DEBUG, f'{file}:{lineno} {func}() -- ' + msg)
+    logger.log(SIDETRACK_DEBUG, f'{pkg}{file}:{lineno} {func}() -- ' + msg)

@@ -1,6 +1,12 @@
 Change log for Sidetrack
 ========================
 
+Version 1.4.0
+-------------
+
+This version adds a new option to `set_debug(...)`: the flag `show_package`, which will cause Sidetrack to prefix messages with the name of the Python package containing the source file from where the log function was called.  This flag is useful if you use Sidetrack in multiple packages, or import packages that also use Sidetrack.
+
+
 Version 1.3.0
 -------------
 
