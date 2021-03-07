@@ -6,7 +6,7 @@ _Sidetrack_ provides a simple interface for writing log messages in Python progr
 [![License](https://img.shields.io/badge/License-BSD%203--Clause-blue.svg?style=flat-square)](https://choosealicense.com/licenses/bsd-3-clause)
 [![Python](https://img.shields.io/badge/Python-3.6+-brightgreen.svg?style=flat-square)](http://shields.io)
 [![Latest release](https://img.shields.io/github/v/release/caltechlibrary/sidetrack.svg?style=flat-square&color=b44e88)](https://github.com/caltechlibrary/sidetrack/releases)
-[![DOI](http://img.shields.io/badge/DOI-10.22002/D1.1633-blue.svg?style=flat-square)](https://data.caltech.edu/records/1633)
+[![DOI](http://img.shields.io/badge/DOI-10.22002/D1.1899-blue.svg?style=flat-square)](https://data.caltech.edu/records/1899)
 [![PyPI](https://img.shields.io/pypi/v/sidetrack.svg?style=flat-square&color=red)](https://pypi.org/project/sidetrack/)
 
 
@@ -26,7 +26,7 @@ Table of contents
 Introduction
 ------------
 
-IDEs are great for debugging and tracing execution of your code, but they can't be used in all situations.  For example, if your code is executing on multiple remote computers, or you have released a program to general users and you would like them to send you a debug log/trace of execution, using an IDE at runtime may be impractical or impossible.  Logging packages such as [`logging`](https://docs.python.org/3/library/logging.html) are made for these situations; you can insert logging statements in your code and use the output to understand what is happening as well as for software telemetry and other purposes.  However, setting up Python [`logging`](https://docs.python.org/3/library/logging.html) or most similar packages is (IMHO) complicated and verbose if you don't need all its features.
+IDEs are great for debugging and tracing execution of your code, but they can't be used in all situations.  For example, if your code is executing on multiple remote computers, or you have released a program to general users and you would like them to send you a debug log/trace of execution, using an IDE at run time may be impractical or impossible.  Logging packages such as [`logging`](https://docs.python.org/3/library/logging.html) are made for these situations; you can insert logging statements in your code and use the output to understand what is happening as well as for software telemetry and other purposes.  However, setting up Python [`logging`](https://docs.python.org/3/library/logging.html) or most similar packages is (IMHO) complicated and verbose if you don't need all its features.
 
 _Sidetrack_ (<b>Si</b>mple <b>de</b>bug <b>trac</b>ing pac<b>k</b>age) offers a simple API that lets you turn on logging, set the output destination (which can be stdout), and sprinkle `log(f'my message and my {variable} value')` throughout your code.  Moreover, it is carefully written so that you can cause the `log` calls to be _optimized out completely_ if your run Python with the `-O` option and you prefix your `log` calls with `if __debug__`.  This leads to the following style of using Sidetrack:
 
