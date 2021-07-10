@@ -136,6 +136,22 @@ def logr(msg):
         if getattr(sys.modules[__package__], '_debugging', False):
             __write_log(msg, currentframe().f_back)
 
+
+def loglist(msg_list):
+    '''Logs a list of strings as individual debug message.
+
+    This is a shorthand for doing roughly the following:
+        for msg in msg_list:
+            log(msg)
+    '''
+    if __debug__:
+        # This test for the level may seem redundant, but it's not: it prevents
+        # the string format from always being performed if logging is not
+        # turned on and the user isn't running Python with -O.
+        if getattr(sys.modules[__package__], '_debugging', False):
+            for msg in msg_list:
+                __write_log(msg, currentframe().f_back)
+
 
 # Internal helper functions.
 # .............................................................................
