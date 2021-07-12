@@ -9,7 +9,7 @@ Michael Hucka <mhucka@caltech.edu> -- Caltech Library
 Copyright
 ---------
 
-Copyright (c) 2019-2020 by the California Institute of Technology.  This code
+Copyright (c) 2019-2021 by the California Institute of Technology.  This code
 is open-source software released under a 3-clause BSD license.  Please see the
 file "LICENSE" for more information.
 '''
@@ -109,8 +109,22 @@ def set_debug(enabled, dest = '-', show_package = False, extra = ''):
 # stacklevel as the argument. The code below instead uses the Python inspect
 # module to get the correct stack frame at run time.
 
-def log(msg, *other_args):
-    '''Logs a debug message.
+def log(msg):
+    '''Logs a debug message in raw form, without further interpretation.
+
+    The text string 'msg' is taken as-is; unlike the function logf(...), this
+    function does not apply str.format to the string.
+    '''
+    if __debug__:
+        # This test for the level may seem redundant, but it's not: it prevents
+        # the string format from always being performed if logging is not
+        # turned on and the user isn't running Python with -O.
+        if getattr(sys.modules[__package__], '_debugging', False):
+            __write_log(msg, currentframe().f_back)
+
+
+def logf(msg, *other_args):
+    '''Logs a debug message, optionally with arguments passed to format.
 
     The "msg" can contain string format directives.  The "other_args" are
     arguments that are merged into "msg" using str.format.
@@ -123,18 +137,22 @@ def log(msg, *other_args):
             __write_log(msg.format(*other_args), currentframe().f_back)
 
 
-def logr(msg):
-    '''Logs a debug message in raw form, without further interpretation.
+def loglist(msg_list):
+    '''Logs a list of strings as individual debug message.
 
-    The text string 'msg' is taken as-is; unlike the function log(...), this
-    function does not apply str.format to the string.
+    The text strings in the list are taken as-is.  This is a shorthand for
+    doing roughly the following:
+
+        for msg in msg_list:
+            log(msg)
     '''
     if __debug__:
         # This test for the level may seem redundant, but it's not: it prevents
         # the string format from always being performed if logging is not
         # turned on and the user isn't running Python with -O.
         if getattr(sys.modules[__package__], '_debugging', False):
-            __write_log(msg, currentframe().f_back)
+            for msg in msg_list:
+                __write_log(msg, currentframe().f_back)
 
 
 # Internal helper functions.
