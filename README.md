@@ -1,5 +1,4 @@
-Sidetrack<img width="11%" align="right" src="https://github.com/caltechlibrary/sidetrack/raw/main/.graphics/sidetrack-logo.png">
-===========================================================================
+# Sidetrack<img width="11%" align="right" src="https://github.com/caltechlibrary/sidetrack/raw/main/.graphics/sidetrack-logo.png">
 
 _Sidetrack_ provides a simple interface for writing log messages in Python programs.  Calls to the log functions can be left in your code to let users produce debug logs in the field; if performance matters, using certain coding idioms and turning on Python optimization will cause log statements to be compiled out.
 
@@ -10,8 +9,7 @@ _Sidetrack_ provides a simple interface for writing log messages in Python progr
 [![PyPI](https://img.shields.io/pypi/v/sidetrack.svg?style=flat-square&color=red)](https://pypi.org/project/sidetrack/)
 
 
-Table of contents
------------------
+## Table of contents
 
 * [Introduction](#introduction)
 * [Installation](#installation)
@@ -23,8 +21,7 @@ Table of contents
 * [Acknowledgments](#authors-and-acknowledgments)
 
 
-Introduction
-------------
+## Introduction
 
 IDEs are great for debugging and tracing execution of your code, but they can't be used in all situations.  For example, if your code is executing on multiple remote computers, or you have released a program to general users and you would like them to send you a debug log/trace of execution, using an IDE at run time may be impractical or impossible.  Logging packages such as [`logging`](https://docs.python.org/3/library/logging.html) are made for these situations; you can insert logging statements in your code and use the output to understand what is happening as well as for software telemetry and other purposes.  However, setting up Python [`logging`](https://docs.python.org/3/library/logging.html) or most similar packages is (IMHO) complicated and verbose if you don't need all its features.
 
@@ -40,8 +37,8 @@ for item in item_list:
 When running with `-O`, the `log` statement in the loop will not simply be a no-op function call: Python will [completely discard the conditional block](https://www.engyrus.com/2013/03/idtkap-4-debug-and-o.html), as if the code did not exist.  This is as optimal as possible, and means that you do not have to worry about the performance costs of using `log` or evaluating its arguments.
 
 
-Installation
-------------
+## Installation
+
 
 The instructions below assume you have a Python interpreter installed on your computer; if that's not the case, please first [install Python version 3](INSTALL-Python3.md) and familiarize yourself with running Python programs on your system.
 
@@ -56,8 +53,7 @@ python3 -m pip install git+https://github.com/caltechlibrary/sidetrack.git
 ```
 
 
-Usage
------
+## Usage
 
 There are just three functions in the `sidetrack` package:
 * `set_debug`: turn logging on/off, set the output destination, and configure options
@@ -208,32 +204,27 @@ python3 -O tests/demo_debug.py -d -
 ```
 
 
-Getting help
-------------
+## Getting help
 
 If you find an issue, please submit it in [the GitHub issue tracker](https://github.com/caltechlibrary/sidetrack/issues) for this repository.
 
 
-Contributing
-------------
+## Contributing
 
 We would be happy to receive your help and participation with enhancing `sidetrack`!  Please visit the [guidelines for contributing](CONTRIBUTING.md) for some tips on getting started.
 
 
-License
--------
+## License
 
 Software produced by the Caltech Library is Copyright (C) 2020, Caltech.  This software is freely distributed under a BSD/MIT type license.  Please see the [LICENSE](LICENSE) file for more information.
 
 
-Authors and history
----------------------------
+## Authors and history
 
 I developed the first version of this code while implementing [Spiral](https://github.com/casics/spiral).  I started using the code in essentially every Python software package I have written since then, first by copy-pasting the code (which was initially very short) and eventually creating a single-file module (named `debug.py`).  This was obviously a suboptimal approach.  Finally, in 2020, I decided it was time to break it out into a proper self-contained Python package.
 
 
-Acknowledgments
----------------
+## Acknowledgments
 
 This work was funded by the California Institute of Technology Library.
 
