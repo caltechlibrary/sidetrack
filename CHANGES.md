@@ -1,5 +1,16 @@
 # Change log for Sidetrack
 
+## Version 2.0.0
+
+This introduces **backwards-incompatible changes** to the API, and one new function.
+
+In recognition that modern Python code more often uses f-strings,  the function `logr` is now `log`, and what was previously `log` is now called `logf`.  Users who called the `log` function with single strings will not notice any difference; users who called it with more than one argument (a string and format arguments) will get an error; and users who called `logr` will also get an error, about an undefined function. The new set of log functions is more logically organized:
+
+* `log` takes a single argument, a string. It does not apply `format` to the string.
+* `loglist` is like `log`, except it accepts multiple strings. It prints them one line at time.
+* `logf` takes a single string as the first argument and optionally multiple arguments after that. It passes the optional arguments to `format`.
+
+
 ## Version 1.4.0
 
 This version adds a new option to `set_debug(...)`: the flag `show_package`, which will cause Sidetrack to prefix messages with the name of the Python package containing the source file from where the log function was called.  This flag is useful if you use Sidetrack in multiple packages, or import packages that also use Sidetrack.
