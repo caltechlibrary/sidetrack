@@ -8,6 +8,8 @@ _Sidetrack_ provides a simple interface for writing log messages in Python progr
 [![DOI](http://img.shields.io/badge/DOI-10.22002/D1.1899-blue.svg?style=flat-square)](https://data.caltech.edu/records/1899)
 [![PyPI](https://img.shields.io/pypi/v/sidetrack.svg?style=flat-square&color=red)](https://pypi.org/project/sidetrack/)
 
+<p align="center"><img width="60%" src="https://github.com/caltechlibrary/sidetrack/blob/develop/.graphics/version-2-warning.svg"></p>
+
 
 ## Table of contents
 
@@ -55,22 +57,23 @@ python3 -m pip install git+https://github.com/caltechlibrary/sidetrack.git
 
 ## Usage
 
-There are just three functions in the `sidetrack` package:
+There are just four functions in the `sidetrack` package:
 * `set_debug`: turn logging on/off, set the output destination, and configure options
-* `log`: logs a message with optional arguments; the string can contain embedded `format` directives
-* `logr`: logs a message as-is, without applying `format` to the string
+* `log`: logs a message as-is.
+* `loglist`: takes a list of messages and logs them individually, as if applying `log` to each one in turn.
+* `logf`: logs a message with optional arguments; the message string can contain embedded `format` directives.
 
 
 ### _How to import Sidetrack_
 
-To take advantage of Python optimization behavior, make sure to conditionalize all references to Sidetrack functions on the Python built-in symbol `__debug__`.  This includes the import statement for Sidetrack:
+To take advantage of Python's optimization behavior, make sure to conditionalize all references to Sidetrack functions on the Python built-in symbol `__debug__`.  This includes the import statement for Sidetrack:
 
 ``` python
 if __debug__:
-    from sidetrack import set_debug, log, logr
+    from sidetrack import set_debug, log, logf, loglist
 ```
 
-The fragment above illustrates another tip: to make calls to the `log` functions as short as possible in your code, import `set_debug`, `log` and `logr` directly using the `from sidetrack ...` approach instead of doing a plain `import sidetrack`, so that you can write `log(...)` instead of `sidetrack.log(...)`.  Believe me, your fingers and eyes will thank you!
+The fragment above illustrates another tip: to make calls to the `log` functions as short as possible in your code, import `set_debug`, `log`, `logf`, and `loglist` directly using the `from sidetrack ...` approach instead of doing a plain `import sidetrack`, so that you can write `log(...)` instead of `sidetrack.log(...)`.  Believe me, your fingers and eyes will thank you!
 
 
 ### _How to turn on debug logging_
@@ -92,7 +95,7 @@ if __debug__:
     set_debug(True, dest = '/tmp/debug.txt')
 ```
 
-The function `set_debug` also accepts another optional argument, `show_package`, that causes Sidetrack each `log` or `logr` message to be prefixed with the name of the Python package containing the source file where the `log` or `logr` is used.  This is very helpful when Sidetrack is used in multiple packages.
+The function `set_debug` also accepts another optional argument, `show_package`, that causes each `log`, `loglist`, and `logf` message to be prefixed with the name of the Python package containing the source file where the call to the log function is used.  This is very helpful when Sidetrack is used in multiple packages.
 
 ``` python
 if __debug__:
@@ -109,25 +112,37 @@ if __debug__:
 If your program uses threads, you may find the use of `extra = "%(threadName)s"` helpful.
 
 
-### _How to call `log` and `logr` and format the output_
+### _How to call `log`, `loglist`, and `logf`_
 
-The `log` function accepts one argument, a string, and any number of optional arguments.  Here's an example from an actual program that uses Sidetrack:
+The function `log` is the most basic function in Sidetrack. Call it with a single argument, the message to be printed:
 
-``` python
-if __debug__: log('exception (failure #{}): {}', failures, str(ex))
+```python
+if __debug__: log("I'm right here!")
 ```
 
-Internally, `log` applies `format` to the string and passes any remaining arguments as the arguments to `format`.  In other words, it is essentially the following pseudocode:
+If you want to print multiple strings, it's certainly possible to call `log` multiple times consecutively, but in some situations, it may be more convenient to call `loglist` &ndash; especially if the strings are generated dynamically as in the following example:
+
+```python
+if __debug__: loglist(f'{var} = {value}' for var, value in settings())
+```
+
+Finally, there are situations where f-strings cannot be used due to how they are evaluated at run time or due to [certain inherent limitations](https://www.python.org/dev/peps/pep-0498/#differences-between-f-string-and-str-format-expressions). For those situations, Sidetrack provides the `logf` function. It accepts one argument, a string, and any number of optional arguments.  Here's an example:
 
 ``` python
-def log(msg, *other_args):
+if __debug__: logf('exception (failure #{}): {}', failures, str(ex))
+```
+
+Internally, `logf` applies `format` to the string and passes any remaining arguments as the arguments to `format`.  In other words, it is essentially the following pseudocode:
+
+``` python
+def logf(msg, *other_args):
     final_text = msg.format(*other_args)
     write_log(final_text)
 ```
 
-In the age of Python f-strings, the above may seem redundant and unnecessary: why not simply call `log` with an f-string?  In fact, in almost all cases, you can; however, there are also situations where f-strings cannot be used due to how they are evaluated at run time or due to [certain inherent limitations](https://www.python.org/dev/peps/pep-0498/#differences-between-f-string-and-str-format-expressions).  Having `log` operate like a call to `format` gives you the flexibility of using either style without having to remember a different API: you can use `log(f'some {value}')` if you wish, or `log('some {}', value)` if you prefer.
+When using `logf`, beware of including references to variables that _might_ expand at run time to contain characters that have special meaning to Python's `format` command, such as the `{` character.
 
-The alternative function `logr` (`r` for _raw_) is available for use in situations where the string argument must _not_ be passed to `format`.  This is handy when the string contains character sequences that have special meaning to `format`, particularly in situations where the string contains references to variables that _might_ expand at run time to contain those characters &ndash; in other words, something that would be misinterpreted by `format` but is difficult to escape.
+### _Understanding the output_
 
 In all cases, each line of the output has the following form:
 
@@ -135,13 +150,12 @@ In all cases, each line of the output has the following form:
 <<i>package</i>> <i>extra</i>&nbsp;&nbsp;<b>filename:lineno</b>&nbsp;&nbsp;<b>function()</b> -- <b>message</b>
 </p>
 
-where _package_ and _extra_ are optional and controlled by the arguments `show_package` and `extra`, respectively, to `set_debug(...)`, and the remaining values are always printed: the file name, line number and function where the call to the `log` or `logr` was made, and the message.  Examples are shown in the next section.
+where _package_ and _extra_ are optional and controlled by the arguments `show_package` and `extra`, respectively, to `set_debug(...)`, and the remaining values are always printed: the file name, line number and function where the call to the `log`, `loglist`, or `logf` was made, and the message.  Examples are shown in the next section.
 
 
 ### _Tips for using Sidetrack_
 
-Throughout the rest of your code, in places where it's useful, add calls to `log(...)` and/or `logr(...)`.  Here's a simple contrived example, taken from the [demonstration program](tests/demo_debug.py) supplied with Sidetrack:
-
+Throughout the rest of your code, in places where it's useful, add calls to the log functions.  Here's a simple contrived example, taken from the [demonstration program](tests/demo_debug.py) supplied with Sidetrack:
 
 ``` python
 if __debug__: log('=== demo program starting ===')
