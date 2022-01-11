@@ -123,6 +123,10 @@ def log(msg):
             __write_log(msg, currentframe().f_back)
 
 
+# Backward compatibility; what is now log(...) was previously logr(...).
+logr = log
+
+
 def logf(msg, *other_args):
     '''Logs a debug message, optionally with arguments passed to format.
 
