@@ -48,7 +48,7 @@ ifneq ($(branch),main)
 	$(error Current git branch != main. Merge changes into main first)
 endif
 
-update-init-file:;
+update-init:;
 	@sed -i .bak -e "s|^\(__version__ *=\).*|\1 '$(version)'|"  $(init_file)
 	@sed -i .bak -e "s|^\(__description__ *=\).*|\1 '$(desc)'|" $(init_file)
 	@sed -i .bak -e "s|^\(__url__ *=\).*|\1 '$(url)'|"	    $(init_file)
@@ -56,16 +56,19 @@ update-init-file:;
 	@sed -i .bak -e "s|^\(__email__ *=\).*|\1 '$(email)'|"	    $(init_file)
 	@sed -i .bak -e "s|^\(__license__ *=\).*|\1 '$(license)'|"  $(init_file)
 
-update-codemeta-file:;
+update-codemeta:;
 	@sed -i .bak -e "/version/ s/[0-9].[0-9][0-9]*.[0-9][0-9]*/$(version)/" codemeta.json
 
-edited := codemeta.json $(init_file)
+update-citation:;
+	@sed -i .bak -e "/^version/ s/[0-9].[0-9][0-9]*.[0-9][0-9]*/$(version)/" CITATION.cff
 
-check-in-updated-files:;
+edited := codemeta.json $(init_file) CITATION.cff
+
+commit-updates:;
 	git add $(edited)
 	git diff-index --quiet HEAD $(edited) || git commit -m"Update version" $(edited)
 
-release-on-github: | update-init-file update-codemeta-file check-in-updated-files
+release-on-github: | update-init update-codemeta update-citation commit-updates
 	git push -v --all
 	git push -v --tags
 	$(info ┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓)
@@ -91,17 +94,21 @@ print-instructions:;
 	@echo ""
 
 update-doi: 
-	sed -i .bak -e 's|DOI-.*-blue|DOI-$(doi)-blue|' README.md
-	sed -i .bak -e 's|caltech.edu/records/[0-9]\{1,\}|caltech.edu/records/$(doi_tail)|' README.md
-	git add README.md
-	git diff-index --quiet HEAD README.md || git commit -m"Update DOI" README.md && git push -v --all
+	sed -i .bak -e 's|/api/record/[0-9]\{1,\}|/api/record/$(doi_tail)|' README.md
+	sed -i .bak -e 's|edu/records/[0-9]\{1,\}|edu/records/$(doi_tail)|' README.md
+	sed -i .bak -e '/doi:/ s|10.22002/[0-9]\{1,\}|10.22002/$(doi_tail)|' CITATION.cff
+	git add README.md CITATION.cff
+	git diff-index --quiet HEAD README.md || \
+	    (git commit -m"Update DOI" README.md && git push -v --all)
+	git diff-index --quiet HEAD CITATION.cff || \
+	    (git commit -m"Update DOI" CITATION.cff && git push -v --all)
 
 create-dist: clean
 	python3 setup.py sdist bdist_wheel
 	python3 -m twine check dist/*
 
 test-pypi: create-dist
-	python3 -m twine upload --verbose --repository-url https://test.pypi.org/legacy/ dist/*
+	python3 -m twine upload --repository testpypi dist/$(name)-$(version)*.{whl,gz}
 
 pypi: create-dist
 	python3 -m twine upload --verbose dist/*
@@ -109,5 +116,5 @@ pypi: create-dist
 clean:;
 	-rm -rf dist build $(name).egg-info
 
-.PHONY: release release-on-github update-init-file update-codemeta-file \
+.PHONY: release release-on-github update-init update-codemeta \
 	print-instructions create-dist clean test-pypi pypi
