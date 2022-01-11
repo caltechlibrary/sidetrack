@@ -1,5 +1,10 @@
 # Change log for Sidetrack
 
+## Version 2.0.1
+
+This version adds a backward compatibility function `logr` that is identical to `log`.
+
+
 ## Version 2.0.0
 
 This introduces **backwards-incompatible changes** to the API, and one new function.
