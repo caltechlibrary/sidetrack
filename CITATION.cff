@@ -12,7 +12,7 @@ repository-code: "https://github.com/caltechlibrary/sidetrack"
 title: "Simple debug tracing package for Python"
 date-released: 2021-12-02
 version: "2.0.1"
-doi: 10.22002/8772
+doi: 10.22002/8968
 keywords: 
   - Python
   - logging
